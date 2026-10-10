@@ -21,8 +21,8 @@ Legenda usada nas fases:
 1. Eu apresento a **história de falha** (o bug real que o padrão previne) e o guia da fase.
 2. Você faz a **trilha 🧑** (≈ 1,5–2 h por fase; as tarefas estão ordenadas por prioridade — se faltar tempo, pare em qualquer ponto após as marcadas ⭐).
 3. Eu faço a trilha 🤖 e a revisão do que você commitou.
-4. Fazemos os **💥 exercícios de quebra**.
-5. **🎤 Entrevista** no chat: eu pergunto, você responde, eu dou feedback e follow-ups. O resumo fica em `docs/entrevistas/faseN.md`.
+4. Fazemos os **💥 exercícios de quebra** e registramos as evidências (saídas de comando, métricas) em `docs/experiments/faseN.md`.
+5. **🎤 Entrevista** no chat: de 5 a 8 perguntas, uma por vez; você responde com as suas palavras e só então eu dou feedback (o que estava certo, o que faltou, o que um entrevistador sênior esperaria). Perguntas fracas voltam nas entrevistas seguintes (revisão espaçada). O registro fica em `docs/entrevistas/faseN.md`.
 6. Atualizamos os **📝 ADRs**.
 
 **Regra de ouro:** nenhuma fase termina sem (a) critérios de aceitação verdes, (b) ADRs atualizados e (c) entrevista feita.
@@ -37,7 +37,7 @@ Legenda usada nas fases:
 
 ## 3. Stack
 
-Decisões completas em [`docs/adr/0001`](docs/adr/0001-stack-e-versoes.md). Resumo: Java 21+ / Kotlin 2.x, Spring Boot (versão estável vigente, fixada na Fase 0), Gradle Kotlin DSL, PostgreSQL + Flyway, RabbitMQ (quorum queues), JUnit 5 + Kotest (property-based) + Testcontainers + ArchUnit, Micrometer/OpenTelemetry, Docker Compose, GitHub Actions.
+Decisões completas em [`docs/adr/0001`](docs/adr/0001-stack-e-versoes.md). Resumo: Java 21+ / Kotlin 2.x, Spring Boot (versão estável vigente, fixada na Fase 0), Gradle Kotlin DSL, PostgreSQL + Flyway, Apache Kafka (ver [ADR-0008](docs/adr/0008-kafka-e-integracao-com-platform-eda.md)), JUnit 5 + Kotest (property-based) + Testcontainers + ArchUnit, Micrometer/OpenTelemetry, Docker Compose, GitHub Actions.
 
 ## 4. Princípios inegociáveis de pagamentos
 
@@ -52,6 +52,20 @@ São a "espinha" do plano; toda fase volta a eles.
 7. **Reconciliar sempre:** nossos registros (eventos e contabilidade) × extrato do TSP. Divergência é esperada; não detectá-la é o bug.
 8. **Tudo auditável, PII protegida** (quem fez o quê, quando, e sem CPF em log).
 
+## 4.1 Invariantes que o sistema deve provar
+
+Inspiradas nas invariantes do `platform-eda`; cada uma é provada por teste, experimento ou auditor, não só por código.
+
+| # | Invariante | Como será provada |
+|---|---|---|
+| INV-1 | **Nenhum pagamento duplicado**: um payout gera no máximo uma saída de dinheiro, mesmo com retries, reentregas e webhooks repetidos. | Fases 3, 5, 6 (testes de concorrência e cenários do TSP fake) |
+| INV-2 | **Nenhum pagamento perdido**: todo payout aceito termina em estado terminal ou em `UNCERTAIN` visível e alertado. | Fases 6, 7 (matriz de crash) |
+| INV-3 | **Conservação**: depósitos − saídas − holds = saldo; saldo do `Account` = saldo contábil. | Fases 2, 4, 7 |
+| INV-4 | **Ordem por transfer** preservada, inclusive durante retries. | Fase 5 |
+| INV-5 | **Falha é contida**: um transfer/TSP problemático não bloqueia os demais. | Fases 5, 6 |
+| INV-6 | **Nada fica invisível**: tudo retido, incerto ou divergente é observável e reprocessável. | Fases 5, 7, 8 |
+| INV-7 | **Auditável e sem PII em claro** em logs e eventos. | Fases 2, 8 |
+
 ## 5. Mapa de fases
 
 | Fase | Tema | Máquina 🤖 | Você 🧑 |
@@ -61,11 +75,11 @@ São a "espinha" do plano; toda fase volta a eles.
 | 2 | Event Sourcing: Event Store + `Account` + concorrência | 3,5 h | 2 h |
 | 3 | API idempotente + observabilidade base | 3 h | 1,5 h |
 | 4 | CQRS: projeções + contabilização pós-transacional | 3 h | 2 h |
-| 5 | Mensageria confiável (Outbox/Inbox/DLQ) | 3 h | 1,5 h |
+| 5 | Mensageria confiável: Kafka + integração com `platform-eda` | 2 h | 1,5 h |
 | 6 | TSP assíncrono (PIX): incerteza, webhooks, resiliência | 4 h | 2 h |
 | 7 | Saga/Process Manager + Reconciliação | 4 h | 2 h |
 | 8 | Segurança, compliance e operação | 3 h | 1,5 h |
-| | **Total** | **≈ 27 h** | **≈ 15,5 h** |
+| | **Total** | **≈ 26 h** | **≈ 15,5 h** |
 
 Mudanças em relação ao plano v1: state machine foi para a Fase 1 (os estados já existiam lá); **Event Sourcing** (agora também no saldo da conta) e **API idempotente** vieram *antes* de mensageria; a **contabilização** (lançamentos de dupla entrada) é uma projeção pós-transacional (Fase 4); o TSP deixou de ser síncrono; observabilidade é transversal; segurança/compliance ganhou fase própria.
 
@@ -225,33 +239,38 @@ Mudanças em relação ao plano v1: state machine foi para a Fase 1 (os estados 
 
 ---
 
-## FASE 5 — Mensageria confiável
+## FASE 5 — Mensageria confiável (Kafka + integração com `platform-eda`)
 
-**Objetivo:** comunicação assíncrona sem perder nem duplicar efeitos.
+**Objetivo:** comunicação assíncrona sem perder nem duplicar efeitos, usando Kafka. O money-out é um **produto**; o `platform-eda` (repositório do autor, privado) é a **plataforma** que entrega eventos e executa policies. A integração é por contrato: tópicos/envelope + comandos HTTP idempotentes. Não copiamos código do `platform-eda` para este repositório.
 
-**💥 História de falha:** commit no banco ok, broker fora do ar ⇒ evento perdido (*dual write*). Consumer processa a mesma mensagem duas vezes ⇒ notificação/crédito duplicado.
+**Portão de entrada (decidido no ADR-0008):** se o `platform-eda` tiver concluído a Fase 3b (outbox + Debezium) e a 4c (runner com retry, retenção e ordem), usamos a plataforma (**Trilha A**). Caso contrário, fazemos um relay Kafka mínimo no próprio money-out (**Trilha B**) e migramos depois. As Fases 0 a 4 não dependem disso.
+
+**💥 História de falha:** commit no banco ok, broker fora do ar ⇒ evento perdido (*dual write*). Consumer processa a mesma mensagem duas vezes ⇒ notificação/crédito duplicado. Um evento com falha permanente trava a fila inteira de todos os transfers.
 
 **Conceitos**
-- **Outbox** (ou o event store como outbox — 📝 ADR-0008 decide), relay com `FOR UPDATE SKIP LOCKED`, ordenação por aggregate, publisher confirms.
-- **Inbox idempotente**: `INSERT … ON CONFLICT DO NOTHING` + efeito **na mesma transação**.
-- Retry com filas TTL ou quorum queue com `delivery-limit`, DLQ, redrive, mensagens-veneno, prefetch/backpressure.
-- RabbitMQ vs Kafka (ADR-0008).
+- Tópico por agregado, `key = aggregateId`, versão do agregado como `sequenceNumber` (ordem por transfer); `auto.create.topics.enable=false`; breaking change ⇒ tópico `.v2`.
+- **Outbox**: o próprio event store pode servir de outbox lido por CDC (Debezium), sem tabela extra e sem dual write; decisão e formato do envelope no ADR-0008.
+- Consumo **at-least-once**; efeito idempotente no destino (inbox ou `Idempotency-Key`); retry com backoff, retenção (*withhold*) e *head-of-line blocking* consciente por transfer.
+- Comandos assíncronos: um policy-runner (Trilha A) ou um consumer local (Trilha B) chama endpoints HTTP idempotentes do money-out (ex.: `POST /v1/transfers/{id}/submission`) — os mesmos da Fase 3.
+- Replay: reconstruir projeções a partir do log (complementa a Fase 4).
+- Kafka vs RabbitMQ (alternativa rejeitada, ADR-0008) e quando RabbitMQ seria melhor.
 
 **🧑 Sua trilha**
-- ⭐ (50 min) Implementar o **inbox idempotente** e o teste "mesma mensagem 5× ⇒ 1 efeito".
-- (30 min) Escrever o **runbook da DLQ** (1 página: como investigar, corrigir, redrive).
+- ⭐ (50 min) Implementar o **handler idempotente do comando de submissão** (função pura de decisão + teste "mesmo `Idempotency-Key` 5× ⇒ 1 efeito"), reaproveitando a decisão da Fase 3.
+- ⭐ (30 min) Definir o **contrato de eventos** (tópico, key, headers, envelope) para `Transfer` e `Account` e mapear cada evento do event store para ele.
+- (30 min) Escrever o **runbook de mensagem retida** (como investigar, corrigir e reprocessar).
 
-**🤖 Minha trilha:** outbox + relay, RabbitMQ (exchanges/filas/DLQ), consumers, Testcontainers.
+**🤖 Minha trilha:** configuração Kafka/Debezium (ou relay mínimo na Trilha B), endpoint de comando, testes com Testcontainers, ajustes no `docker compose`, ADR-0008.
 
-**💥 Quebras:** matar o broker durante a publicação; matar o relay depois de publicar e antes de marcar como enviado; enviar mensagem-veneno.
+**💥 Quebras:** matar o broker durante a publicação; matar o relay/conector entre publicar e confirmar; entregar o mesmo comando 3×; evento-veneno (falha permanente) bloqueando só o transfer afetado.
 
 **Critérios de aceitação**
-1. Nenhum evento perdido após queda do broker ou do relay.
+1. Nenhum evento perdido após queda do broker ou do relay/conector.
 2. Duplicatas não geram efeito duplicado.
-3. Mensagem-veneno vai para a DLQ após N tentativas e pode ser reenfileirada.
-4. Ordem por aggregate preservada.
+3. Evento com falha permanente fica retido, sem bloquear outros transfers, e pode ser reprocessado.
+4. Ordem por `transferId` preservada, inclusive durante retries.
 
-**🎤 Entrevista** — dual write · "exactly-once existe?" · outbox vs CDC · garantias de ordem · estratégia de DLQ · RabbitMQ vs Kafka · por que a inbox precisa da mesma transação do efeito.
+**🎤 Entrevista** — dual write · "exactly-once existe?" · outbox vs CDC · garantias de ordem no Kafka (partição, key, rebalance) · Kafka vs RabbitMQ · retry e retenção sem perder a ordem · por que o destino precisa ser idempotente.
 
 ---
 
@@ -262,7 +281,7 @@ Mudanças em relação ao plano v1: state machine foi para a Fase 1 (os estados 
 **💥 História de falha:** timeout na chamada ao PSP; reenviamos; o beneficiário recebeu dois PIX. O webhook de confirmação chega *antes* da resposta da chamada.
 
 **Conceitos**
-- **Anti-Corruption Layer** para o TSP.
+- **Anti-Corruption Layer** para o TSP. A chamada ao TSP fica **dentro do money-out** (precisa de `endToEndId` persistido, `UNCERTAIN` e consulta de status); o runner/consumer só dispara o comando HTTP idempotente de submissão. Resiliência no cliente do TSP com Resilience4j (complementa o circuit breaker por partição do `platform-eda`, que atua no consumo).
 - `endToEndId` gerado e **persistido antes** da chamada (write-intent-before-act) e usado como chave de idempotência no TSP.
 - **Classificação de erros:** definitivo / transitório / **desconhecido** → só o transitório sofre retry; o desconhecido entra em `UNCERTAIN` e um job **consulta o status** com backoff.
 - Webhooks: assinatura HMAC, tolerância de timestamp (anti-replay), deduplicação, eventos fora de ordem.
@@ -366,6 +385,7 @@ money-out/
 ├── docs/
 │   ├── adr/                # decisões arquiteturais
 │   ├── fases/              # faseN-guia.md (📋 código para digitar)
-│   └── entrevistas/        # faseN.md (resumo das entrevistas)
+│   ├── experiments/        # faseN.md (evidências dos exercícios de quebra)
+│   └── entrevistas/        # faseN.md (registro das entrevistas)
 └── (código Kotlin a partir da Fase 0)
 ```
