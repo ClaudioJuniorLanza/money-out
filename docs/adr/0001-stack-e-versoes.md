@@ -1,6 +1,6 @@
 # 0001 — Stack e versões
 
-- **Status:** Proposta (versões exatas serão validadas e fixadas na Fase 0)
+- **Status:** Proposta (versões verificadas em 2026-10-10; ver `docs/experiments/fase-0.md`)
 - **Data:** 2026-10-10
 - **Fase:** 0
 
@@ -13,9 +13,10 @@ O objetivo é aprender engenharia de pagamentos, e a stack deve ser empregável 
 3. **Java puro + Spring Boot** — mesma plataforma, porém mais verboso para sealed hierarchies e data classes.
 
 ## Decisão
-- Java 21+ (LTS) com Kotlin 2.x.
-- Spring Boot na versão estável vigente na Fase 0 (a ser confirmada e fixada).
-- Gradle com Kotlin DSL; PostgreSQL + Flyway; Apache Kafka (ver ADR-0008); JUnit 5, Kotest (property-based), Testcontainers, ArchUnit; Micrometer + OpenTelemetry; Docker Compose; GitHub Actions.
+- Java 21 (LTS) como toolchain (o `platform-eda` usa 25; 21 roda em ambos os ambientes e no CI) com Kotlin 2.3.21.
+- Spring Boot 4.1.1, usando o BOM `spring-boot-dependencies` como fonte da verdade de versões (Kotlin, JUnit, Testcontainers, Flyway, drivers). Só entram no catálogo as versões que o BOM não gerencia (Kotest 6.2.5, ArchUnit 1.5.1, ktlint).
+- Versões exatas, nunca `latest`, nunca milestone/RC; atualizações via ADR ou commit dedicado.
+- Gradle 9.8.1 (wrapper) com Kotlin DSL; PostgreSQL + Flyway; Apache Kafka (ver ADR-0008); JUnit 5, Kotest (property-based), Testcontainers, ArchUnit; Micrometer + OpenTelemetry; Docker Compose; GitHub Actions.
 - Sem Axon: event sourcing é implementado à mão para fins didáticos.
 
 ## Consequências

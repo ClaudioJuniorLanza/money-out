@@ -37,7 +37,7 @@ Legenda usada nas fases:
 
 ## 3. Stack
 
-Decisões completas em [`docs/adr/0001`](docs/adr/0001-stack-e-versoes.md). Resumo: Java 21+ / Kotlin 2.x, Spring Boot (versão estável vigente, fixada na Fase 0), Gradle Kotlin DSL, PostgreSQL + Flyway, Apache Kafka (ver [ADR-0008](docs/adr/0008-kafka-e-integracao-com-platform-eda.md)), JUnit 5 + Kotest (property-based) + Testcontainers + ArchUnit, Micrometer/OpenTelemetry, Docker Compose, GitHub Actions.
+Decisões completas em [`docs/adr/0001`](docs/adr/0001-stack-e-versoes.md). Resumo: Java 21 / Kotlin 2.3, Spring Boot 4.1, Gradle 9.8 (Kotlin DSL), PostgreSQL + Flyway, Apache Kafka (ver [ADR-0008](docs/adr/0008-kafka-e-integracao-com-platform-eda.md)), JUnit 5 + Kotest (property-based) + Testcontainers + ArchUnit, Micrometer/OpenTelemetry, Docker Compose, GitHub Actions.
 
 ## 4. Princípios inegociáveis de pagamentos
 
@@ -93,7 +93,7 @@ Mudanças em relação ao plano v1: state machine foi para a Fase 1 (os estados 
 
 **Entregas**
 - 🤖 Projeto Gradle, estrutura de pacotes hexagonal, Postgres no `docker compose`, GitHub Actions (build + test), regras **ArchUnit** (domínio não depende de framework; adapters não são acessados pelo domínio).
-- 🤖 `Currency`, `Clock` como port, gerador de IDs (UUIDv7), `Document` esqueleto.
+- 🤖 `Currency`, `DomainException`, `java.time.Clock` injetado (com regra ArchUnit que proíbe `now()` no domínio) e gerador de IDs `UuidV7Generator`. (`Document` fica para a Fase 1, onde você implementa a validação.)
 - 📝 ADR-0001 (stack/versões — eu valido as versões vigentes), ADR-0002 (dinheiro em minor units).
 
 **🧑 Sua trilha**
