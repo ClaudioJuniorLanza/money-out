@@ -31,6 +31,12 @@ Achados durante o build:
 
 Numa cópia descartável do projeto, plantamos uma classe com `@Component` (Spring), `Instant.now()` e um campo `Double` em `..domain..`. Resultado: as regras `domainHasNoFrameworkDependency`, `domainDoesNotReadGlobalClock` e `domainDoesNotUseFloatingPoint` falharam; as demais continuaram verdes, como esperado. Também confirmamos que o código do `docs/fases/fase0-guia.md` (Money e esqueleto do teste de `allocate`) compila.
 
+## F0-04 — Reestruturação para hexagonal/DDD (ADR-0011)
+
+Motivo: o autor questionou o pacote `shared/domain` (o `Money` tem invariantes; `shared` genérico vira lixeira). Mudanças: `Currency`, `DomainException` e a porta `IdGenerator` foram para `sharedkernel`; `UuidV7Generator` virou adaptador em `com.moneyout.infrastructure.id`; as regras do ArchUnit passaram a cobrir `..domain..` e `..sharedkernel..` e ganharam `sharedKernelDoesNotDependOnAnyContext`.
+
+Verificação (cópias descartáveis): `Bad` no `sharedkernel` com `@Component`, `Instant.now()` e `Double` ⇒ falharam `pureCodeHasNoFrameworkDependency`, `pureCodeDoesNotReadGlobalClock` e `pureCodeDoesNotUseFloatingPoint`. Uma classe do `sharedkernel` usando `com.moneyout.transfer.Anything` ⇒ falhou `sharedKernelDoesNotDependOnAnyContext`. (Uma primeira tentativa não falhou porque o `import` estava sem uso, logo sem dependência no bytecode; o teste da regra estava errado, não a regra.) O código do guia da Fase 0 compila no pacote novo.
+
 ## Exercícios de quebra do autor
 
 > Preencha após fazer os 💥 do `docs/fases/fase0-guia.md` (o que observou, qual regra falhou e por quê).

@@ -1,5 +1,6 @@
-package com.moneyout.shared.domain
+package com.moneyout.infrastructure.id
 
+import com.moneyout.sharedkernel.IdGenerator
 import java.security.SecureRandom
 import java.time.Clock
 import java.util.UUID
@@ -16,8 +17,8 @@ import java.util.UUID
 class UuidV7Generator(
     private val clock: Clock,
     private val random: SecureRandom = SecureRandom(),
-) {
-    fun generate(): UUID {
+) : IdGenerator {
+    override fun next(): UUID {
         val millis = clock.millis() and TIMESTAMP_MASK
         val randA = random.nextLong() and RAND_A_MASK
         val randB = random.nextLong() and RAND_B_MASK

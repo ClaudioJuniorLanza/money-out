@@ -1,4 +1,4 @@
-package com.moneyout.shared.domain
+package com.moneyout.infrastructure.id
 
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
@@ -12,7 +12,7 @@ class UuidV7GeneratorTest {
 
     @Test
     fun `tem versao 7 e variante RFC`() {
-        val uuid = UuidV7Generator(Clock.fixed(fixedInstant, ZoneOffset.UTC)).generate()
+        val uuid = UuidV7Generator(Clock.fixed(fixedInstant, ZoneOffset.UTC)).next()
 
         uuid.version() shouldBe 7
         uuid.variant() shouldBe 2
@@ -20,15 +20,15 @@ class UuidV7GeneratorTest {
 
     @Test
     fun `embute o timestamp do clock nos 48 bits mais significativos`() {
-        val uuid = UuidV7Generator(Clock.fixed(fixedInstant, ZoneOffset.UTC)).generate()
+        val uuid = UuidV7Generator(Clock.fixed(fixedInstant, ZoneOffset.UTC)).next()
 
         (uuid.mostSignificantBits ushr 16) shouldBe fixedInstant.toEpochMilli()
     }
 
     @Test
     fun `ids de instantes diferentes ordenam pelo tempo`() {
-        val earlier = UuidV7Generator(Clock.fixed(fixedInstant, ZoneOffset.UTC)).generate()
-        val later = UuidV7Generator(Clock.fixed(fixedInstant.plusMillis(1), ZoneOffset.UTC)).generate()
+        val earlier = UuidV7Generator(Clock.fixed(fixedInstant, ZoneOffset.UTC)).next()
+        val later = UuidV7Generator(Clock.fixed(fixedInstant.plusMillis(1), ZoneOffset.UTC)).next()
 
         // UUID.compareTo é assinado; comparamos como texto (hex fixo), que é como o Postgres ordena uuid.
         earlier.toString() shouldBeLessThan later.toString()
@@ -38,7 +38,7 @@ class UuidV7GeneratorTest {
     fun `nao repete ids no mesmo milissegundo`() {
         val generator = UuidV7Generator(Clock.fixed(fixedInstant, ZoneOffset.UTC))
 
-        val ids = List(10_000) { generator.generate() }
+        val ids = List(10_000) { generator.next() }
 
         ids.toSet().size shouldBe ids.size
     }

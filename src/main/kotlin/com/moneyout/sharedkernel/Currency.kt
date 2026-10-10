@@ -1,4 +1,4 @@
-package com.moneyout.shared.domain
+package com.moneyout.sharedkernel
 
 /**
  * Moedas aceitas pelo sistema (ADR-0002). Só BRL por ora; câmbio está fora de escopo.

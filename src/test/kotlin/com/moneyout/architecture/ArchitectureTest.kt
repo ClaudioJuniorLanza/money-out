@@ -15,16 +15,25 @@ import java.time.OffsetDateTime
 import java.time.ZonedDateTime
 
 /**
- * Fronteiras de arquitetura executáveis. Se uma destas regras falhar, o build falha.
- * Princípios: domínio sem framework, sem relógio global, sem ponto flutuante (PLANO.md, seção 4).
+ * Fronteiras de arquitetura executáveis (ADR-0011). Se uma destas regras falhar, o build falha.
+ *
+ * Estrutura: `sharedkernel` (núcleo mínimo compartilhado) e, por bounded context,
+ * `<contexto>.domain`, `<contexto>.application` e `<contexto>.infrastructure`.
+ * Código "puro" = `..domain..` e `..sharedkernel..`: sem framework, sem relógio global, sem ponto flutuante.
  */
 @AnalyzeClasses(packages = ["com.moneyout"], importOptions = [ImportOption.DoNotIncludeTests::class])
 class ArchitectureTest {
+    private companion object {
+        const val DOMAIN = "..domain.."
+        const val KERNEL = "..sharedkernel.."
+        val CONTEXTS = arrayOf("..transfer..", "..account..", "..accounting..")
+    }
+
     @ArchTest
-    val domainHasNoFrameworkDependency: ArchRule =
+    val pureCodeHasNoFrameworkDependency: ArchRule =
         noClasses()
             .that()
-            .resideInAPackage("..domain..")
+            .resideInAnyPackage(DOMAIN, KERNEL)
             .should()
             .dependOnClassesThat(
                 DescribedPredicate.describe("framework (Spring, Jakarta, Jackson)") { type: JavaClass ->
@@ -37,19 +46,19 @@ class ArchitectureTest {
             )
 
     @ArchTest
-    val domainDoesNotDependOnOuterLayers: ArchRule =
+    val pureCodeDoesNotDependOnOuterLayers: ArchRule =
         noClasses()
             .that()
-            .resideInAPackage("..domain..")
+            .resideInAnyPackage(DOMAIN, KERNEL)
             .should()
             .dependOnClassesThat()
             .resideInAnyPackage("..application..", "..infrastructure..")
 
     @ArchTest
-    val domainDoesNotReadGlobalClock: ArchRule =
+    val pureCodeDoesNotReadGlobalClock: ArchRule =
         noClasses()
             .that()
-            .resideInAPackage("..domain..")
+            .resideInAnyPackage(DOMAIN, KERNEL)
             .should()
             .callMethod(Instant::class.java, "now")
             .orShould()
@@ -64,11 +73,11 @@ class ArchitectureTest {
             .callMethod(System::class.java, "currentTimeMillis")
 
     @ArchTest
-    val domainDoesNotUseFloatingPoint: ArchRule =
+    val pureCodeDoesNotUseFloatingPoint: ArchRule =
         noFields()
             .that()
             .areDeclaredInClassesThat()
-            .resideInAPackage("..domain..")
+            .resideInAnyPackage(DOMAIN, KERNEL)
             .should()
             .haveRawType(Double::class.javaPrimitiveType)
             .orShould()
@@ -77,6 +86,15 @@ class ArchitectureTest {
             .haveRawType(Double::class.javaObjectType)
             .orShould()
             .haveRawType(Float::class.javaObjectType)
+
+    @ArchTest
+    val sharedKernelDoesNotDependOnAnyContext: ArchRule =
+        noClasses()
+            .that()
+            .resideInAPackage(KERNEL)
+            .should()
+            .dependOnClassesThat()
+            .resideInAnyPackage(*CONTEXTS)
 
     @ArchTest
     val applicationDoesNotDependOnInfrastructure: ArchRule =

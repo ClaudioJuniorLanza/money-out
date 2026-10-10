@@ -1,4 +1,4 @@
-package com.moneyout.shared.domain
+package com.moneyout.sharedkernel
 
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test

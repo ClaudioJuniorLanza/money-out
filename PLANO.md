@@ -93,11 +93,12 @@ Mudanças em relação ao plano v1: state machine foi para a Fase 1 (os estados 
 
 **Entregas**
 - 🤖 Projeto Gradle, estrutura de pacotes hexagonal, Postgres no `docker compose`, GitHub Actions (build + test), regras **ArchUnit** (domínio não depende de framework; adapters não são acessados pelo domínio).
-- 🤖 `Currency`, `DomainException`, `java.time.Clock` injetado (com regra ArchUnit que proíbe `now()` no domínio) e gerador de IDs `UuidV7Generator`. (`Document` fica para a Fase 1, onde você implementa a validação.)
+- 🤖 `sharedkernel`: `Currency`, `DomainException`, porta `IdGenerator`; infraestrutura: `UuidV7Generator`; `java.time.Clock` injetado (com regra ArchUnit que proíbe `now()` no domínio). (`Document` fica para a Fase 1, onde você implementa a validação.)
+- 📝 ADR-0011 (estrutura hexagonal/DDD por bounded context e Shared Kernel explícito).
 - 📝 ADR-0001 (stack/versões — eu valido as versões vigentes), ADR-0002 (dinheiro em minor units).
 
 **🧑 Sua trilha**
-- ⭐ (30 min) Digitar `Money` (📋) e escrever seus próprios testes de borda (negativo, moedas diferentes, overflow).
+- ⭐ (30 min) Digitar `Money` (📋) no `sharedkernel` e escrever seus próprios testes de borda (negativo, moedas diferentes, overflow).
 - ⭐ (30 min) Implementar `Money.allocate(ratios)` — dividir R$ 100,00 em 3 sem perder centavo — com **property test** (soma das partes == total, para qualquer entrada).
 - (15 min) Revisar e editar os ADR-0001/0002 com suas palavras.
 
@@ -387,5 +388,5 @@ money-out/
 │   ├── fases/              # faseN-guia.md (📋 código para digitar)
 │   ├── experiments/        # faseN.md (evidências dos exercícios de quebra)
 │   └── entrevistas/        # faseN.md (registro das entrevistas)
-└── (código Kotlin a partir da Fase 0)
+└── src/ ........ código Kotlin: `sharedkernel/`, `infrastructure/` e, por bounded context, `<contexto>/{domain,application,infrastructure}` (ADR-0011)
 ```

@@ -10,6 +10,8 @@ Projeto de aprendizado em engenharia de pagamentos (payout, Brasil). O plano est
 - Verifique antes de afirmar: versões, normas do BCB e propriedades de bibliotecas marcadas "a confirmar" devem ser checadas na fonte.
 - Ao fechar uma fase: critérios de aceitação verdes, ADRs atualizados e entrevista registrada em `docs/entrevistas/faseN.md`.
 - Entrevista: 5 a 8 perguntas, uma por vez, sobre conceitos e trade-offs (nunca sintaxe). O agente nunca escreve as respostas pelo autor e só dá feedback depois da tentativa (certo / faltou / o que um entrevistador sênior esperaria). Perguntas fracas voltam nas fases seguintes.
+- Arquitetura: DDD + hexagonal por bounded context (ADR-0011): `domain` (modelo + portas input/output), `application`, `infrastructure` (adapters input/output). `sharedkernel` é mínimo e explícito; nunca criar `shared`/`common`/`utils` genéricos.
+- Skills e rules do autor (quando commitadas em `.claude/`): ler a correspondente antes de gerar código do tipo. Precedência: `CLAUDE.md` > `PLANO.md`/ADRs > skills e rules. O que for específico de outra stack (ex.: Quarkus) não se aplica: o money-out usa Spring.
 - Dinheiro nunca em `float`/`double`. Domínio sem dependência de framework (ArchUnit). Nunca usar tags `latest` em imagens Docker.
 - Não incluir informações de empregadores do autor no repositório (ele é público). O `platform-eda` é privado: referenciar por nome e contrato, nunca copiar seu código ou conteúdo.
 - Git: push e qualquer reescrita de histórico só com pedido explícito.

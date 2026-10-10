@@ -1,6 +1,6 @@
 # Fase 0 — Guia da sua trilha 🧑
 
-Tempo estimado: ≈ 1 h. O scaffolding (Gradle, CI, ArchUnit, `Currency`, `UuidV7Generator`) já está pronto — **sem** `Money`, que é seu.
+Tempo estimado: ≈ 1 h. O scaffolding (Gradle, CI, ArchUnit, `Currency`, `IdGenerator`/`UuidV7Generator`) já está pronto — **sem** `Money`, que é seu. Leia antes o [ADR-0011](../adr/0011-estrutura-hexagonal-ddd-e-shared-kernel.md): explica por que `Money` mora no `sharedkernel` e por que o gerador de UUID mora na infraestrutura.
 
 Antes de começar:
 
@@ -14,12 +14,12 @@ Regras do jogo: **digite** o código (não copie/cole), escreva os testes com as
 
 ## 1. ⭐ Digite o `Money` (≈ 30 min com os testes)
 
-Arquivo: `src/main/kotlin/com/moneyout/shared/domain/Money.kt`
+Arquivo: `src/main/kotlin/com/moneyout/sharedkernel/Money.kt`
 
 📋
 
 ```kotlin
-package com.moneyout.shared.domain
+package com.moneyout.sharedkernel
 
 /**
  * Dinheiro como inteiro em unidade mínima + moeda (ADR-0002).
@@ -92,7 +92,7 @@ Perguntas para você responder para si mesmo enquanto digita (voltam na entrevis
 
 ### Seus testes (escreva com as suas palavras)
 
-Arquivo: `src/test/kotlin/com/moneyout/shared/domain/MoneyTest.kt`. Cenários mínimos, um teste por linha:
+Arquivo: `src/test/kotlin/com/moneyout/sharedkernel/MoneyTest.kt`. Cenários mínimos, um teste por linha:
 
 1. soma e subtração simples;
 2. somar moedas diferentes lança `DomainException` (hoje só existe BRL: pense em como testar isso — dica: o que o compilador deixa você fazer com uma moeda só? Se não der, registre no seu commit por que o teste fica para quando entrar a 2ª moeda);
@@ -130,12 +130,12 @@ Dicas, sem entregar a solução: calcule a parte "de piso" de cada ratio, some, 
 
 ### Property test (o ponto central deste exercício)
 
-Arquivo: `src/test/kotlin/com/moneyout/shared/domain/MoneyAllocateTest.kt`. O esqueleto abaixo gera valores aleatórios; **você escreve as asserções** das propriedades do contrato (uma `checkAll` por propriedade).
+Arquivo: `src/test/kotlin/com/moneyout/sharedkernel/MoneyAllocateTest.kt`. O esqueleto abaixo gera valores aleatórios; **você escreve as asserções** das propriedades do contrato (uma `checkAll` por propriedade).
 
 📋
 
 ```kotlin
-package com.moneyout.shared.domain
+package com.moneyout.sharedkernel
 
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
@@ -168,7 +168,7 @@ Propriedades a cobrir (pelo menos): soma == total; tamanho == `ratios.size`; cad
 
 ## 3. (15 min) Revise os ADRs
 
-Leia `docs/adr/0001`, `0002` e `0004` e edite com as suas palavras o que discordar. Quando estiver de acordo, mude o status de **Proposta** para **Aceita** (e atualize `docs/adr/README.md`).
+Leia `docs/adr/0001`, `0002`, `0004` e `0011` e edite com as suas palavras o que discordar. Quando estiver de acordo, mude o status de **Proposta** para **Aceita** (e atualize `docs/adr/README.md`).
 
 ---
 
@@ -186,8 +186,8 @@ Quando terminar, me avise: eu reviso o seu código, rodamos os 💥 exercícios 
 ## 💥 Exercícios de quebra (depois que o build estiver verde)
 
 1. No `Money.kt`, troque `val minorUnits: Long` por `Double` e rode `./gradlew build`: qual regra falha e por quê?
-2. Em uma classe de `..domain..`, chame `Instant.now()` e rode o build: qual regra falha?
-3. Em `Currency.kt`, importe `org.springframework.stereotype.Component`: qual regra falha?
+2. Em uma classe do `sharedkernel` (ou de um `..domain..`), chame `Instant.now()` e rode o build: qual regra falha?
+3. Em `Currency.kt` (no `sharedkernel`), importe `org.springframework.stereotype.Component`: qual regra falha?
 4. Desfaça tudo (`git checkout -- .`).
 
 Registre o que observou em `docs/experiments/fase-0.md`.
