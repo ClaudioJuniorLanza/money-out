@@ -10,17 +10,19 @@ Legenda usada nas fases:
 | Ícone | Significado |
 |---|---|
 | 🧑 | **Sua trilha** — você escreve o código/decisão no seu ambiente local e commita. Cada tarefa tem tempo estimado. |
-| 🤖 | **Minha trilha** — eu implemento (scaffolding, adapters, infraestrutura, integração). |
+| 🤖 | **Trilha do agente** — scaffolding, adapters, infraestrutura, integração. Na execução, cada task 🤖 vira ☁️ (delegável a um agente na nuvem) ou 🤖 local (guias, revisão, entrevista, que exigem conversa com você). |
 | 📋 | **Código para digitar** — eu entrego o código em `docs/fases/faseN-guia.md` no início de cada fase; você digita (não copia) e commita. |
 | 💥 | **Exercício de quebra** — provocamos a falha de propósito para ver o padrão resolver. |
 | 🎤 | **Entrevista técnica** — ao fim da fase, conceitos que um entrevistador realmente cobra (nada de sintaxe). |
 | 📝 | **ADR** — decisão registrada em `docs/adr/`. |
 
+> Este documento é o **roteiro** (o porquê e o quê aprender). As tasks executáveis de cada fase, com dono, dependências, testes e gate, ficam em `.specs/features/faseN-*/` (skill `tlc-spec-driven`). O protocolo local × nuvem está em [`fluxo-de-trabalho.md`](fluxo-de-trabalho.md).
+
 **Ritmo de cada fase**
 
-1. Eu apresento a **história de falha** (o bug real que o padrão previne) e o guia da fase.
+1. Eu apresento a **história de falha** (o bug real que o padrão previne), abro a fase em `.specs/` (spec → design → tasks, aprovados por você) e gero o guia.
 2. Você faz a **trilha 🧑** (≈ 1,5–2 h por fase; as tarefas estão ordenadas por prioridade — se faltar tempo, pare em qualquer ponto após as marcadas ⭐).
-3. Eu faço a trilha 🤖 e a revisão do que você commitou.
+3. A trilha do agente roda em paralelo: tasks ☁️ na nuvem (um PR por task) e revisão local do que você commitou.
 4. Fazemos os **💥 exercícios de quebra** e registramos as evidências (saídas de comando, métricas) em `docs/experiments/faseN.md`.
 5. **🎤 Entrevista** no chat: de 5 a 8 perguntas, uma por vez; você responde com as suas palavras e só então eu dou feedback (o que estava certo, o que faltou, o que um entrevistador sênior esperaria). Perguntas fracas voltam nas entrevistas seguintes (revisão espaçada). O registro fica em `docs/entrevistas/faseN.md`.
 6. Atualizamos os **📝 ADRs**.
@@ -37,7 +39,7 @@ Legenda usada nas fases:
 
 ## 3. Stack
 
-Decisões completas em [`docs/adr/0001`](docs/adr/0001-stack-e-versoes.md). Resumo: Java 21 / Kotlin 2.3, Spring Boot 4.1, Gradle 9.8 (Kotlin DSL), PostgreSQL + Flyway, Apache Kafka (ver [ADR-0008](docs/adr/0008-kafka-e-integracao-com-platform-eda.md)), JUnit 5 + Kotest (property-based) + Testcontainers + ArchUnit, Micrometer/OpenTelemetry, Docker Compose, GitHub Actions.
+Decisões completas em [`adr/0001`](adr/0001-stack-e-versoes.md). Resumo: Java 21 / Kotlin 2.3, Spring Boot 4.1, Gradle 9.8 (Kotlin DSL), PostgreSQL + Flyway, Apache Kafka (ver [ADR-0008](adr/0008-kafka-e-integracao-com-platform-eda.md)); I/O com MVC + JDBC + virtual threads ([ADR-0012](adr/0012-modelo-de-io-mvc-jdbc-virtual-threads.md)), JUnit 5 + Kotest (property-based) + Testcontainers + ArchUnit, Micrometer/OpenTelemetry, Docker Compose, GitHub Actions.
 
 ## 4. Princípios inegociáveis de pagamentos
 
@@ -94,6 +96,8 @@ Mudanças em relação ao plano v1: state machine foi para a Fase 1 (os estados 
 **Entregas**
 - 🤖 Projeto Gradle, estrutura de pacotes hexagonal, Postgres no `docker compose`, GitHub Actions (build + test), regras **ArchUnit** (domínio não depende de framework; adapters não são acessados pelo domínio).
 - 🤖 `sharedkernel`: `Currency`, `DomainException`, porta `IdGenerator`; infraestrutura: `UuidV7Generator`; `java.time.Clock` injetado (com regra ArchUnit que proíbe `now()` no domínio). (`Document` fica para a Fase 1, onde você implementa a validação.)
+- ☁️ (pendente) beans de `Clock` UTC e `IdGenerator`; regra ArchUnit que proíbe `UUID.randomUUID()` no código puro. Tasks em `.specs/features/fase0-fundacoes/`.
+- 📝 ADR-0012 (modelo de I/O: MVC + JDBC + virtual threads).
 - 📝 ADR-0011 (estrutura hexagonal/DDD por bounded context e Shared Kernel explícito).
 - 📝 ADR-0001 (stack/versões — eu valido as versões vigentes), ADR-0002 (dinheiro em minor units).
 
@@ -123,10 +127,11 @@ Mudanças em relação ao plano v1: state machine foi para a Fase 1 (os estados 
 - Estados: `REGISTERED → RISK_ANALYSIS → APPROVED | REJECTED`; `APPROVED → SUBMITTED → COMPLETED | FAILED | UNCERTAIN`; `UNCERTAIN → COMPLETED | FAILED` (após consulta ao TSP); `COMPLETED → RETURNED` (devolução).
 - State machine **declarativa e custom** (tabela de transições + guards + actions que emitem eventos de domínio) — 📝 ADR-0005 explica por que não Spring State Machine.
 - Eventos de domínio como `sealed interface`; ports de entrada/saída; adapters in-memory.
+- O agregado já nasce no formato de Event Sourcing (decidir → evento; `apply`; `rehydrate`), para a Fase 2 só trocar o adapter (`.specs/STATE.md` AD-002). Tasks em `.specs/features/fase1-transfer/`.
 
 **🧑 Sua trilha**
 - ⭐ (40 min) Escrever **a matriz de transições** (qual estado aceita qual gatilho) e o teste parametrizado que percorre **todos** os pares (estado × gatilho) afirmando que só os permitidos passam.
-- ⭐ (40 min) Implementar `Cpf`/`Cnpj` a partir dos casos de teste que eu fornecer (dígito verificador, rejeitar sequências repetidas, alfanumérico).
+- ⭐ (40 min) Implementar `Cpf`/`Cnpj` a partir dos casos de teste que eu fornecer no guia (dígito verificador, rejeitar sequências repetidas, alfanumérico).
 - (30 min) Property test: qualquer sequência aleatória de gatilhos nunca deixa a máquina em estado inválido e estados terminais são absorventes.
 - (opcional) Guard de devolução: só `COMPLETED` e dentro do prazo (usa `Clock`).
 
@@ -373,7 +378,7 @@ Mudanças em relação ao plano v1: state machine foi para a Fase 1 (os estados 
 
 ## 6. Política de ADRs
 
-- Local: `docs/adr/NNNN-titulo.md`, modelo em [`0000-template.md`](docs/adr/0000-template.md).
+- Local: `docs/adr/NNNN-titulo.md`, modelo em [`0000-template.md`](adr/0000-template.md).
 - Estados: *Proposta → Aceita → (Substituída por NNNN | Rejeitada)*. ADRs não são editados depois de aceitos — são substituídos por um novo.
 - Cada fase lista os ADRs que produz; sem ADR atualizado a fase não fecha.
 
@@ -381,9 +386,16 @@ Mudanças em relação ao plano v1: state machine foi para a Fase 1 (os estados 
 
 ```
 money-out/
-├── PLANO.md                # este documento
-├── CLAUDE.md               # combinados de trabalho
+├── CLAUDE.md               # combinados de trabalho (lido por todo agente)
+├── .claude/
+│   ├── rules/              # regras de código (harness do autor adaptado a Spring + ES)
+│   └── skills/             # tlc-spec-driven (spec → design → tasks → execute)
+├── .specs/
+│   ├── STATE.md            # decisões de processo (AD-NNN) + handoff entre sessões
+│   └── features/faseN-*/   # spec.md, design.md, tasks.md, validation.md por fase
 ├── docs/
+│   ├── PLANO.md            # este documento (roteiro)
+│   ├── fluxo-de-trabalho.md# protocolo local × nuvem
 │   ├── adr/                # decisões arquiteturais
 │   ├── fases/              # faseN-guia.md (📋 código para digitar)
 │   ├── experiments/        # faseN.md (evidências dos exercícios de quebra)

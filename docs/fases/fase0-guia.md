@@ -179,7 +179,7 @@ Leia `docs/adr/0001`, `0002`, `0004` e `0011` e edite com as suas palavras o que
 ./gradlew build          # compila, lint, testes e regras de arquitetura (ArchUnit)
 ```
 
-Critérios da fase (do PLANO.md): build verde local e no CI; ArchUnit falha se o domínio importar Spring; `Money` não soma moedas distintas; `allocate` nunca perde/ganha centavo (property test); nenhum `now()` direto no domínio.
+Critérios da fase (do [`PLANO.md`](../PLANO.md)): build verde local e no CI; ArchUnit falha se o domínio importar Spring; `Money` não soma moedas distintas; `allocate` nunca perde/ganha centavo (property test); nenhum `now()` direto no domínio.
 
 Quando terminar, me avise: eu reviso o seu código, rodamos os 💥 exercícios de quebra da fase e fazemos a 🎤 entrevista.
 
