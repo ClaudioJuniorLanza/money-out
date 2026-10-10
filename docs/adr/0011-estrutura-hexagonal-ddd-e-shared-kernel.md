@@ -29,6 +29,7 @@ com.moneyout
 ```
 
 - **Portas** são definidas no domínio: `port/input` (casos de uso) e `port/output` (repositórios, relógio, TSP...). As implementações ficam na infraestrutura.
+- **Nomes** (herdados do harness do autor): o command (`RegisterTransfer`) mora em `port/input` junto da interface do caso de uso; o handler (`RegisterTransferHandler`) mora em `application`; portas de saída têm nome de domínio no plural (`Transfers`, não `TransferRepository`). Detalhes em `.claude/rules/hexagonal.md`.
 - **Dependências:** `infrastructure → application → domain`; o domínio e o `sharedkernel` não conhecem camadas externas nem frameworks (ArchUnit).
 - **Critérios para entrar no `sharedkernel`:** (1) mais de um contexto precisa do conceito; (2) tem invariantes de domínio ou é uma porta mínima; (3) mudanças são coordenadas entre contextos; (4) nunca depende de nenhum contexto. Utilitários genéricos **não** entram.
 - `Money` e `Currency` nascem no `sharedkernel` porque `transfer`, `account` e `accounting` vão usá-los.

@@ -10,5 +10,6 @@ Decisões arquiteturais do projeto. Use [`0000-template.md`](0000-template.md) p
 | [0004](0004-idempotencia-e-resultado-desconhecido.md) | Idempotência e resultado desconhecido | Proposta |
 | [0008](0008-kafka-e-integracao-com-platform-eda.md) | Kafka e integração com o `platform-eda` | Proposta |
 | [0011](0011-estrutura-hexagonal-ddd-e-shared-kernel.md) | Estrutura hexagonal/DDD por contexto e Shared Kernel | Proposta |
+| [0012](0012-modelo-de-io-mvc-jdbc-virtual-threads.md) | Modelo de I/O: MVC + JDBC + virtual threads | Proposta |
 
 ADRs previstos nas próximas fases: 0005 (state machine custom), 0006 (concorrência no `Account` e atalho de transação entre aggregates), 0007 (PII em eventos), 0009 (orquestração vs coreografia), 0010 (plano de contas e mapeamento evento → lançamento).
