@@ -1,6 +1,6 @@
 # Fase 0 — Fundações (fechamento) Specification
 
-> Roteiro e didática da fase: [`docs/PLANO.md`](../../../docs/PLANO.md#fase-0--fundações). Guia do autor: [`docs/fases/fase0-guia.md`](../../../docs/fases/fase0-guia.md).
+> Roteiro e didática da fase: [`docs/PLANO.md`](../../../docs/PLANO.md#fase-0--fundações). Guia do autor (revisão dos ADRs e preparação da entrevista): [`docs/fases/fase0-guia.md`](../../../docs/fases/fase0-guia.md). Na Fase 0 o autor não implementa código: `Money` e `allocate` são do agente (decisão do autor em 2026-10-13).
 > Esta spec cobre **o que falta** para fechar a Fase 0; o scaffolding (Gradle, CI, ArchUnit, `Currency`, `IdGenerator`/`UuidV7Generator`) já foi entregue (`docs/experiments/fase-0.md` F0-01 a F0-04).
 
 ## Problem Statement
@@ -11,7 +11,7 @@ Toda fase seguinte depende de `Money` correto (sem perder centavo, sem somar moe
 
 - [ ] `Money` com aritmética segura e `allocate` provado por property test.
 - [ ] `Clock` e `IdGenerator` disponíveis como beans e proibidos de forma global no código puro.
-- [ ] ADRs da fase revisados pelo autor, exercícios de quebra registrados e entrevista feita.
+- [ ] ADRs da fase revisados pelo autor, exercícios de quebra registrados pelo agente e entrevista feita.
 
 ## Out of Scope
 
@@ -28,7 +28,7 @@ Toda fase seguinte depende de `Money` correto (sem perder centavo, sem somar moe
 | Assumption / decision | Chosen default | Rationale | Confirmed? |
 |---|---|---|---|
 | Fuso do `Clock` de produção | `Clock.systemUTC()` | Eventos e `TIMESTAMPTZ` em UTC; conversão de fuso só na apresentação | n |
-| Teste de "moedas diferentes" com uma moeda só | O autor decide (guia, cenário 2) e registra no commit | Decisão didática do guia da Fase 0 | n |
+| Teste de "moedas diferentes" com uma moeda só | Se o compilador impedir com só BRL, o agente registra o motivo no KDoc do teste e no commit; o teste entra com a 2ª moeda | Não inventar moeda fora do escopo só para testar | n |
 | `UUID.randomUUID()` também proibido em `application` | Não; só em `..domain..` e `..sharedkernel..` | `application` recebe `IdGenerator`; a regra global fica no código puro, como a do relógio | n |
 
 **Open questions:** none — all resolved or logged above.
@@ -74,14 +74,14 @@ Toda fase seguinte depende de `Money` correto (sem perder centavo, sem somar moe
 
 ### P2: Fechamento didático
 
-**User Story**: Como autor, quero revisar as decisões, quebrar as regras de propósito e ser entrevistado, para fixar os conceitos antes da Fase 1.
+**User Story**: Como autor, quero revisar as decisões, ver as regras quebradas de propósito e ser entrevistado, para fixar os conceitos antes da Fase 1.
 
 **Why P2**: Regra de ouro do plano (critérios + ADRs + entrevista), mas não bloqueia código.
 
 **Acceptance Criteria**:
 
 1. WHEN a fase fecha THEN os ADRs 0001, 0002, 0004, 0011 e 0012 SHALL estar com status Aceita ou Rejeitada, revisados pelo autor.
-2. WHEN a fase fecha THEN `docs/experiments/fase-0.md` SHALL conter a seção "Exercícios de quebra do autor" preenchida com a regra que falhou em cada exercício.
+2. WHEN a fase fecha THEN `docs/experiments/fase-0.md` SHALL conter a seção "Exercícios de quebra" preenchida com a regra que falhou em cada exercício.
 3. WHEN a fase fecha THEN `docs/entrevistas/fase0.md` SHALL registrar de 5 a 8 perguntas com a resposta do autor e o feedback.
 
 **Independent Test**: leitura dos três arquivos.

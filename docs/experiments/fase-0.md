@@ -37,6 +37,6 @@ Motivo: o autor questionou o pacote `shared/domain` (o `Money` tem invariantes; 
 
 Verificação (cópias descartáveis): `Bad` no `sharedkernel` com `@Component`, `Instant.now()` e `Double` ⇒ falharam `pureCodeHasNoFrameworkDependency`, `pureCodeDoesNotReadGlobalClock` e `pureCodeDoesNotUseFloatingPoint`. Uma classe do `sharedkernel` usando `com.moneyout.transfer.Anything` ⇒ falhou `sharedKernelDoesNotDependOnAnyContext`. (Uma primeira tentativa não falhou porque o `import` estava sem uso, logo sem dependência no bytecode; o teste da regra estava errado, não a regra.) O código do guia da Fase 0 compila no pacote novo.
 
-## Exercícios de quebra do autor
+## Exercícios de quebra
 
-> Preencha após fazer os 💥 do `docs/fases/fase0-guia.md` (o que observou, qual regra falhou e por quê).
+> Preenchido pelo agente na task T6 (`.specs/features/fase0-fundacoes/tasks.md`): o que foi quebrado, qual regra falhou e por quê.

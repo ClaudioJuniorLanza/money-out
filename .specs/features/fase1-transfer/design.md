@@ -99,6 +99,6 @@ Todas as exceções são subclasses de `DomainException`, sem PII na mensagem, n
 | Risco | Mitigação |
 |---|---|
 | Regras do BCB/RFB erradas (formato do `endToEndId`, DV do CNPJ alfanumérico, prazo de devolução) | T1 verifica na fonte oficial antes das tasks de VO; ACs são ajustados se divergir |
-| Agregado depende da tabela do autor (T5) | Tasks ☁️ de VOs e eventos não dependem de T5; só `Transfer` (T12) espera |
+| Agregado depende da tabela do autor (T5) | Tasks 🤖 de VOs e eventos não dependem de T5; só `Transfer` (T12) espera |
 | `ConcurrencyConflict` também vai servir ao `Account` (Fase 2) | Nasce em `transfer`; sobe para o `sharedkernel` na Fase 2 se cumprir os critérios do ADR-0011 |
 | PII no `TransferRegistered` | Aceito só em memória na Fase 1; bloqueante para a Fase 2 (ADR-0007) |

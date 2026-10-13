@@ -6,11 +6,10 @@ Implement these tasks with the `tlc-spec-driven` skill (vendorizada em `.claude/
 
 **If the skill cannot be activated, STOP and tell the user - do not proceed without it.**
 
-Antes de qualquer task, leia [`docs/fluxo-de-trabalho.md`](../../../docs/fluxo-de-trabalho.md) (Owner, local × nuvem, branch/PR) e as regras indicadas no campo **Tools**.
+Antes de qualquer task, leia [`docs/fluxo-de-trabalho.md`](../../../docs/fluxo-de-trabalho.md) (Owner, branch/PR, desbloqueio) e as regras indicadas no campo **Tools**.
 
-- **Owner 🧑** — do autor, local. Agentes não implementam; podem oferecer dicas, testes e revisão.
-- **Owner ☁️** — delegável a agente na nuvem.
-- **Owner 🤖** — agente local, em sessão com o autor.
+- **Owner 🧑** — do autor. Agentes não implementam; podem oferecer dicas, testes e revisão.
+- **Owner 🤖** — de um agente de IA, rodando local ou na nuvem (o protocolo é o mesmo). Tasks marcadas **interativa** exigem o autor na sessão.
 
 **Pré-requisito da fase:** Fase 0 fechada (`.specs/features/fase0-fundacoes/validation.md` com PASS), em especial `Money` e o bean de `Clock`/`IdGenerator`.
 
@@ -54,15 +53,15 @@ Antes de qualquer task, leia [`docs/fluxo-de-trabalho.md`](../../../docs/fluxo-d
 
 As fases rodam em ordem; dentro delas, tasks de donos diferentes podem andar em paralelo quando não há seta entre elas. Gargalo esperado: T5 e T6 (autor) liberam T10 e T13.
 
-- **Phase 1 — preparação:** T1 ☁️ → T3 🤖; T2 ☁️ independente.
-- **Phase 2 — modelo base:** T4 ☁️ → T7 ☁️ → (T5 🧑, T6 🧑, T8 ☁️, T9 ☁️); T6 → T10 ☁️ → T11 ☁️; T9 → T11.
-- **Phase 3 — agregado:** T12 ☁️ → T13 ☁️ → (T14 ☁️, T15 🧑, T16 🧑 opcional).
-- **Phase 4 — casos de uso:** T17 ☁️ → T18 ☁️ → (T19 ☁️, T20 ☁️) → T21 ☁️.
+- **Phase 1 — preparação:** T1 🤖 → T3 🤖; T2 🤖 independente.
+- **Phase 2 — modelo base:** T4 🤖 → T7 🤖 → (T5 🧑, T6 🧑, T8 🤖, T9 🤖); T6 → T10 🤖 → T11 🤖; T9 → T11.
+- **Phase 3 — agregado:** T12 🤖 → T13 🤖 → (T14 🤖, T15 🧑, T16 🧑 opcional).
+- **Phase 4 — casos de uso:** T17 🤖 → T18 🤖 → (T19 🤖, T20 🤖) → T21 🤖.
 - **Phase 5 — fechamento:** T22 🤖.
 
 Os diagramas exatos (validados por script) estão no início de cada fase em "Task Breakdown".
 
-Ordem sugerida para a nuvem: T1, T2, T4, T7, T8, T9 (sem depender do autor); depois T10–T11 (após T6), T12–T14 (após T5), T17–T21.
+Ordem sugerida para o agente: T1, T2, T4, T7, T8, T9 (sem depender do autor); depois T10–T11 (após T6), T12–T14 (após T5), T17–T21.
 
 ---
 
@@ -77,7 +76,7 @@ T2
 
 #### T1: Verificar na fonte as regras externas
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: Confirmar em fonte oficial o formato do `endToEndId`, o DV de CPF, o DV do CNPJ alfanumérico (pesos e conversão), os tipos de conta usados no PIX e o prazo de devolução PIX; registrar fonte, data e eventuais divergências das premissas da spec.
 **Where**: `docs/experiments/fase1.md`
 **Depends on**: None
@@ -103,7 +102,7 @@ T2
 
 #### T2: ADR-0005 — state machine custom
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: ADR com contexto, opções (Spring State Machine, biblioteca de terceiros, custom declarativa) e decisão proposta, em status Proposta, mais a linha no índice.
 **Where**: `docs/adr/0005-state-machine-custom.md`
 **Depends on**: None
@@ -152,7 +151,7 @@ T7 -> T10
 
 #### T4: Tipos do ciclo de vida
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: `TransferStatus` (9 estados, `isTerminal`), `TransferTrigger` (8 gatilhos), `TransferMethod` (PIX, TED) e `TransferId` (`@JvmInline value class` sobre `UUID`).
 **Where**: `src/main/kotlin/com/moneyout/transfer/domain/model/TransferStatus.kt`
 **Depends on**: None
@@ -177,7 +176,7 @@ T7 -> T10
 
 #### T7: Exceções de domínio do contexto `transfer`
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: As exceções da seção "Error Handling Strategy" do design, todas subclasses de `DomainException`, sem PII nas mensagens.
 **Where**: `src/main/kotlin/com/moneyout/transfer/domain/model/TransferExceptions.kt`
 **Depends on**: T4
@@ -238,7 +237,7 @@ T7 -> T10
 
 #### T8: `EndToEndId`
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: VO que aceita só o formato confirmado em T1 e lança `InvalidEndToEndId` caso contrário.
 **Where**: `src/main/kotlin/com/moneyout/transfer/domain/model/EndToEndId.kt`
 **Depends on**: T1, T7
@@ -259,7 +258,7 @@ T7 -> T10
 
 #### T9: `BankAccount`
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: VO com ISPB (8 dígitos), agência, número da conta e `AccountType` (tipos confirmados em T1).
 **Where**: `src/main/kotlin/com/moneyout/transfer/domain/model/BankAccount.kt`
 **Depends on**: T1, T7
@@ -279,7 +278,7 @@ T7 -> T10
 
 #### T10: `PixKey`
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: VO com `PixKeyType` (CPF, CNPJ, EMAIL, PHONE, EVP); chaves CPF/CNPJ delegam a validação para `Document`.
 **Where**: `src/main/kotlin/com/moneyout/transfer/domain/model/PixKey.kt`
 **Depends on**: T6, T7
@@ -300,7 +299,7 @@ T7 -> T10
 
 #### T11: `Beneficiary` e motivos categorizados
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: `Beneficiary` (nome, `Document?`, destino `sealed` `PixKey | BankAccount`) + `RejectionReason` e `FailureReason` (enums).
 **Where**: `src/main/kotlin/com/moneyout/transfer/domain/model/Beneficiary.kt`
 **Depends on**: T9, T10
@@ -328,7 +327,7 @@ T13 -> T16
 
 #### T12: Eventos de domínio
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: `sealed interface TransferEvent` e os 9 eventos da tabela "Data Models" do design (delta + `occurredAt`, sem `eventId`).
 **Where**: `src/main/kotlin/com/moneyout/transfer/domain/event/TransferEvent.kt`
 **Depends on**: T8, T11
@@ -347,7 +346,7 @@ T13 -> T16
 
 #### T13: Agregado `Transfer`
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: `register`, os 8 métodos de decisão (consultando `TransferStateMachine`), `apply` e `rehydrate`, conforme o design.
 **Where**: `src/main/kotlin/com/moneyout/transfer/domain/model/Transfer.kt`
 **Depends on**: T5, T12
@@ -372,7 +371,7 @@ T13 -> T16
 
 #### T14: Regra ArchUnit de imutabilidade no domínio
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: Regra `pureCodeHasNoMutableFields` (campos de `..domain..` e `..sharedkernel..` são `final`) + prova de falha registrada.
 **Where**: `src/test/kotlin/com/moneyout/architecture/ArchitectureTest.kt`
 **Depends on**: T13
@@ -439,7 +438,7 @@ T18 -> T20 -> T21
 
 #### T17: Porta de saída `Transfers`
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: Interface `Transfers` com `load` e `append(expectedVersion)`, documentada como em `.claude/rules/event-sourcing.md`.
 **Where**: `src/main/kotlin/com/moneyout/transfer/domain/port/output/Transfers.kt`
 **Depends on**: T13
@@ -458,7 +457,7 @@ T18 -> T20 -> T21
 
 #### T18: `InMemoryTransfers`
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: Adapter in-memory com checagem de versão atômica (`ConcurrentHashMap.compute`).
 **Where**: `src/main/kotlin/com/moneyout/transfer/infrastructure/adapter/output/persistence/InMemoryTransfers.kt`
 **Depends on**: T17
@@ -478,7 +477,7 @@ T18 -> T20 -> T21
 
 #### T19: Caso de uso `RegisterTransfer`
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: Command + `RegisterTransferUseCase` (porta de entrada) + `RegisterTransferHandler` (usa `IdGenerator` e `Clock`).
 **Where**: `src/main/kotlin/com/moneyout/transfer/application/RegisterTransferHandler.kt`
 **Depends on**: T18
@@ -503,7 +502,7 @@ T18 -> T20 -> T21
 
 #### T20: Casos de uso da análise de risco
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: `StartRiskAnalysis`, `ApproveTransfer` e `RejectTransfer` (command + porta + handler cada).
 **Where**: `src/main/kotlin/com/moneyout/transfer/application/ApproveTransferHandler.kt`
 **Depends on**: T18
@@ -524,7 +523,7 @@ T18 -> T20 -> T21
 
 #### T21: Wiring Spring do contexto `transfer`
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: `TransferConfiguration` com `@Bean` de `InMemoryTransfers` e dos quatro handlers (expostos pelas portas de entrada), usando os beans de `Clock` e `IdGenerator` da Fase 0.
 **Where**: `src/main/kotlin/com/moneyout/transfer/infrastructure/config/TransferConfiguration.kt`
 **Depends on**: T19, T20
@@ -550,7 +549,7 @@ T22
 
 #### T22: Validação, exercícios de quebra e entrevista
 
-**Owner**: 🤖 (sessão local com o autor)
+**Owner**: 🤖 (**interativa**: precisa do autor)
 **What**: Verifier independente contra a spec (com discrimination sensor), exercícios de quebra (ex.: liberar `COMPLETED -> REGISTERED` na tabela, remover a checagem de versão do in-memory), entrevista da fase e atualização dos ADRs.
 **Where**: `docs/entrevistas/fase1.md`
 **Depends on**: T14, T15, T21

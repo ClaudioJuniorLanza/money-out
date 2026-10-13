@@ -8,7 +8,7 @@
 - **Trade-off**: Tasks ☁️ podem ficar bloqueadas esperando uma task 🧑; aceita-se o gargalo em troca do aprendizado.
 - **Scope**: Todas as fases; `docs/fluxo-de-trabalho.md`.
 - **Date**: 2026-10-10
-- **Status**: active
+- **Status**: superseded by AD-004
 
 ### AD-002
 - **Decision**: Agregados são escritos no formato event-sourced (decidir → evento; `apply`; `rehydrate`; eventos com delta + `occurredAt`) desde a Fase 1, mesmo com persistência in-memory.
@@ -26,13 +26,29 @@
 - **Date**: 2026-10-10
 - **Status**: active
 
+### AD-004
+- **Decision**: O Owner de uma task tem dois valores — 🧑 autor ou 🤖 agente de IA. Onde o agente roda (local ou nuvem) não é atributo da task; tasks que exigem o autor na sessão são marcadas **interativas**.
+- **Reason**: O autor delega tanto à nuvem quanto ao agente local; para o agente o protocolo (branch, gate, commit, PR) é idêntico, então separar ☁️ de 🤖 só criava duas regras para a mesma coisa.
+- **Trade-off**: A task não diz mais onde rodar; o autor decide no momento de delegar (as interativas, na prática, numa sessão em que ele está presente).
+- **Scope**: Todas as fases; `docs/fluxo-de-trabalho.md`, `CLAUDE.md`, `tasks.md` de cada fase.
+- **Date**: 2026-10-13
+- **Status**: active
+
+### AD-005
+- **Decision**: Na Fase 0 o autor não implementa código: `Money`, `allocate` e os exercícios de quebra são do agente; o autor revisa os ADRs e faz a entrevista.
+- **Reason**: Implementar os VOs do `sharedkernel` não traz ganho relevante de conhecimento ao autor; o valor está nas decisões (ADRs) e em defendê-las.
+- **Trade-off**: O autor aprende `Money`/`allocate` lendo o PR e o property test, não escrevendo; o guia da fase vira roteiro de revisão.
+- **Scope**: `.specs/features/fase0-fundacoes/`, `docs/fases/fase0-guia.md`, `docs/PLANO.md` (Fase 0).
+- **Date**: 2026-10-13
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: `.specs/features/fase0-fundacoes/` (fechamento); `.specs/features/fase1-transfer/` em Draft
-- **Phase / Task**: Fase 0 — specs e tasks aguardando aprovação do autor
-- **Completed**: nenhuma task das specs novas; scaffolding da Fase 0 já entregue (`docs/experiments/fase-0.md` F0-01..F0-04)
+- **Phase / Task**: Fase 0 — specs e tasks revisadas pelo autor, ajustes de ownership aplicados (AD-004, AD-005); aguardando aprovação final
+- **Completed**: nenhuma task das specs; scaffolding da Fase 0 já entregue (`docs/experiments/fase-0.md` F0-01..F0-04)
 - **In-progress** (file:line): none
-- **Next step**: autor aprova as duas specs; integra a branch `chore/organiza-planejamento` no `main`; delega Fase 0 T1 e T2 à nuvem e faz T3–T6 localmente.
-- **Blockers**: o scaffolding da Fase 0 (commits 243d404 e 598f63d) ainda não está no `main` — agentes na nuvem partem do `main`.
+- **Next step**: autor aprova as duas specs; integra `chore/organiza-planejamento` no `main`; delega Fase 0 T1–T4 e T6 a um agente; revisa os ADRs (T5).
+- **Blockers**: o scaffolding da Fase 0 (commits 243d404 e 598f63d) ainda não está no `main`, e os agentes partem do `main`.
 - **Uncommitted files**: none
 - **Branch**: `chore/organiza-planejamento`

@@ -6,11 +6,10 @@ Implement these tasks with the `tlc-spec-driven` skill (vendorizada em `.claude/
 
 **If the skill cannot be activated, STOP and tell the user - do not proceed without it.**
 
-Antes de começar qualquer task, leia [`docs/fluxo-de-trabalho.md`](../../../docs/fluxo-de-trabalho.md): ele define quem executa cada task (**Owner**), onde (local × nuvem) e o protocolo de branch/PR.
+Antes de começar qualquer task, leia [`docs/fluxo-de-trabalho.md`](../../../docs/fluxo-de-trabalho.md): ele define o **Owner** de cada task e o protocolo de branch/PR.
 
-- **Owner 🧑** — do autor, na máquina local. Agentes **não** implementam; podem oferecer dicas, testes e revisão.
-- **Owner ☁️** — delegável a um agente na nuvem.
-- **Owner 🤖** — agente local, em sessão com o autor (guias, revisão, entrevista).
+- **Owner 🧑** — do autor. Agentes **não** implementam; podem oferecer dicas e revisão.
+- **Owner 🤖** — de um agente de IA, rodando local ou na nuvem (o protocolo é o mesmo). Tasks marcadas **interativa** exigem o autor na sessão.
 
 ---
 
@@ -44,29 +43,27 @@ Antes de começar qualquer task, leia [`docs/fluxo-de-trabalho.md`](../../../doc
 
 ## Execution Plan
 
-Duas trilhas independentes: a ☁️ pode rodar em paralelo à 🧑 (arquivos diferentes, sem conflito). A entrevista fecha a fase.
+O agente implementa e prova; o autor revisa as decisões (ADRs) em paralelo; a entrevista fecha a fase.
 
-```
-Trilha ☁️:  T1    T2                    (independentes)
-Trilha 🧑:  T3 -> T4 -> T6
-            T5                          (independente)
-Fecho 🤖:   T7  (depois de T1..T6)
-```
+- **Phase 1 — implementação (🤖):** T1 e T2 independentes; T3 → T4 → T6.
+- **Phase 2 — revisão (🧑):** T5, que pode andar em paralelo à Phase 1.
+- **Phase 3 — fechamento (🤖, interativa):** T7, depois de T1–T6.
 
 ---
 
 ## Task Breakdown
 
-### Phase 1: Trilha da nuvem
+### Phase 1: Implementação
 
 ```
 T1
 T2
+T3 -> T4 -> T6
 ```
 
 #### T1: Beans de `Clock` e `IdGenerator`
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: Configuração Spring que expõe `Clock.systemUTC()` e `UuidV7Generator(clock)` como `IdGenerator`.
 **Where**: `src/main/kotlin/com/moneyout/infrastructure/config/TimeAndIdConfiguration.kt`
 **Depends on**: None
@@ -75,7 +72,6 @@ T2
 
 **Tools**:
 
-- MCP: NONE
 - Skill: `tlc-spec-driven`; ler `.claude/rules/kotlin.md` e `.claude/rules/tests.md`
 
 **Done when**:
@@ -93,7 +89,7 @@ T2
 
 #### T2: Regra ArchUnit contra `UUID.randomUUID()` no código puro
 
-**Owner**: ☁️
+**Owner**: 🤖
 **What**: Nova regra `pureCodeDoesNotGenerateRandomIds` em `ArchitectureTest` e evidência de que ela falha.
 **Where**: `src/test/kotlin/com/moneyout/architecture/ArchitectureTest.kt`
 **Depends on**: None
@@ -102,7 +98,6 @@ T2
 
 **Tools**:
 
-- MCP: NONE
 - Skill: `tlc-spec-driven`; ler `.claude/rules/tests.md` (seção Arquitetura)
 
 **Done when**:
@@ -119,25 +114,23 @@ T2
 
 ---
 
-### Phase 2: Trilha do autor
+#### T3: `Money` com aritmética segura
 
-```
-T3 -> T4 -> T6
-T5
-```
-
-#### T3: Digitar `Money` e escrever os testes de borda
-
-**Owner**: 🧑
-**What**: `Money` conforme o 📋 do guia + `MoneyTest` com os seis cenários do guia.
+**Owner**: 🤖
+**What**: `data class Money(minorUnits: Long, currency: Currency) : Comparable<Money>` com `plus`, `minus`, `unaryMinus`, `compareTo`, `isZero`, `isPositive`, `isNegative` e `Money.zero(currency)`; overflow via `Math.addExact`/`subtractExact` convertido em `DomainException`; moedas diferentes ⇒ `DomainException`.
 **Where**: `src/main/kotlin/com/moneyout/sharedkernel/Money.kt`
 **Depends on**: None
-**Reuses**: `docs/fases/fase0-guia.md` §1, `CurrencyTest.kt`
+**Reuses**: `sharedkernel/Currency.kt`, `sharedkernel/DomainException.kt`; KDoc explicando o porquê de `Long` assinado (ADR-0002)
 **Requirement**: F0-01
+
+**Tools**:
+
+- Skill: `tlc-spec-driven`; ler `.claude/rules/kotlin.md`, `.claude/rules/domain-model.md`, `.claude/rules/tests.md`
 
 **Done when**:
 
-- [ ] ACs 1–3 de "Dinheiro seguro" cobertos em `MoneyTest.kt` (um teste por cenário do guia)
+- [ ] `MoneyTest.kt` cobre ACs 1–3 de "Dinheiro seguro" e o edge case de `-Money(Long.MIN_VALUE)`
+- [ ] Teste de "moedas diferentes": se não for possível com uma moeda só, o motivo fica registrado no KDoc do teste e no commit (premissa da spec)
 - [ ] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
 
 **Tests**: unit
@@ -147,19 +140,18 @@ T5
 
 ---
 
-#### T4: Implementar `Money.allocate` com property test
+#### T4: `Money.allocate` com property test
 
-**Owner**: 🧑
-**What**: `allocate(ratios)` sem perder centavo + `MoneyAllocateTest` com uma `checkAll` por propriedade.
+**Owner**: 🤖
+**What**: `allocate(ratios: List<Int>): List<Money>` sem perder nem criar centavo, com o resto distribuído de 1 em 1 a partir das primeiras partes, sinal aplicado no fim e sem overflow em `total * ratio`.
 **Where**: `src/main/kotlin/com/moneyout/sharedkernel/Money.kt`
 **Depends on**: T3
-**Reuses**: `docs/fases/fase0-guia.md` §2 (contrato e esqueleto)
 **Requirement**: F0-02
 
 **Done when**:
 
-- [ ] ACs 4–6 e os três edge cases da spec cobertos em `MoneyAllocateTest.kt`
-- [ ] Exemplo concreto: R$ 100,00 em 3 ⇒ 33,34 + 33,33 + 33,33
+- [ ] `MoneyAllocateTest.kt` com o exemplo concreto (R$ 100,00 em 3 ⇒ 33,34 + 33,33 + 33,33) e uma `checkAll` por propriedade: soma == total; tamanho == `ratios.size`; cada parte a menos de 1 minor unit da fração exata; ratios iguais ⇒ partes diferem no máximo em 1; entrada inválida ⇒ `DomainException`
+- [ ] Os três edge cases da spec cobertos (total negativo, `total * ratio` grande, `Long.MIN_VALUE`)
 - [ ] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
 
 **Tests**: unit
@@ -169,44 +161,49 @@ T5
 
 ---
 
-#### T5: Revisar os ADRs da fase
-
-**Owner**: 🧑
-**What**: Ler e editar com as próprias palavras os ADRs 0001, 0002, 0004, 0011 e 0012; mudar status para Aceita (ou Rejeitada) e atualizar o índice.
-**Where**: `docs/adr/`
-**Depends on**: None
-**Reuses**: `docs/fases/fase0-guia.md` §3
-**Requirement**: F0-05
-
-**Done when**:
-
-- [ ] Cinco ADRs com status final e índice coerente
-
-**Tests**: none
-**Gate**: build
-
-**Commit**: `docs(adr): revisa e aceita ADRs da Fase 0`
-
----
-
 #### T6: Exercícios de quebra
 
-**Owner**: 🧑
-**What**: Fazer os quatro 💥 do guia e registrar o que falhou e por quê.
-**Where**: `docs/experiments/fase-0.md` (seção "Exercícios de quebra do autor")
+**Owner**: 🤖
+**What**: Executar os 💥 da fase numa cópia descartável e registrar qual regra/teste falhou e por quê: `minorUnits` como `Double`; `Instant.now()` no `sharedkernel`; import de Spring no `sharedkernel`; `allocate` que ignora o resto (o property test precisa pegar).
+**Where**: `docs/experiments/fase-0.md`
 **Depends on**: T4
-**Reuses**: `docs/fases/fase0-guia.md` §💥
 **Requirement**: F0-06
 
 **Done when**:
 
-- [ ] Cada exercício com a regra que falhou e a explicação
-- [ ] Working tree limpo depois (`git status` sem sobras do exercício)
+- [ ] Seção "Exercícios de quebra" com, para cada exercício, a saída relevante do build e a explicação em linguagem de entrevista
+- [ ] Working tree real intacto (`git status` igual ao de antes do exercício)
 
 **Tests**: none
 **Gate**: build
 
 **Commit**: `docs(experiments): registra exercicios de quebra da Fase 0`
+
+---
+
+### Phase 2: Revisão do autor
+
+```
+T5
+```
+
+#### T5: Revisar os ADRs da fase
+
+**Owner**: 🧑
+**What**: Ler e editar com as próprias palavras os ADRs 0001, 0002, 0004, 0011 e 0012, usando o roteiro de revisão do `docs/fases/fase0-guia.md`; mudar status para Aceita (ou Rejeitada) e atualizar o índice.
+**Where**: `docs/adr/README.md`
+**Depends on**: None
+**Requirement**: F0-05
+
+**Done when**:
+
+- [ ] Cinco ADRs com status final e índice coerente
+- [ ] Divergências viram ADR substituto ou pedido de mudança antes do fechamento
+
+**Tests**: none
+**Gate**: build
+
+**Commit**: `docs(adr): revisa e aceita ADRs da Fase 0`
 
 ---
 
@@ -216,10 +213,10 @@ T5
 T7
 ```
 
-#### T7: Revisão final e entrevista da Fase 0
+#### T7: Validação e entrevista da Fase 0
 
-**Owner**: 🤖 (sessão local com o autor)
-**What**: Revisar T1–T6 contra a spec (Verifier da skill), conduzir a entrevista (5–8 perguntas, uma por vez, feedback só depois da resposta) e registrá-la.
+**Owner**: 🤖 (**interativa**: precisa do autor)
+**What**: Verifier independente contra a spec (com discrimination sensor) e entrevista (5–8 perguntas, uma por vez, feedback só depois da resposta), registrada.
 **Where**: `docs/entrevistas/fase0.md`
 **Depends on**: T1, T2, T3, T4, T5, T6
 **Reuses**: perguntas sugeridas em `docs/PLANO.md` (Fase 0, 🎤)

@@ -9,20 +9,20 @@ Legenda usada nas fases:
 
 | Ícone | Significado |
 |---|---|
-| 🧑 | **Sua trilha** — você escreve o código/decisão no seu ambiente local e commita. Cada tarefa tem tempo estimado. |
-| 🤖 | **Trilha do agente** — scaffolding, adapters, infraestrutura, integração. Na execução, cada task 🤖 vira ☁️ (delegável a um agente na nuvem) ou 🤖 local (guias, revisão, entrevista, que exigem conversa com você). |
+| 🧑 | **Sua trilha** — você escreve o código/decisão e commita. Cada tarefa tem tempo estimado. |
+| 🤖 | **Trilha do agente de IA** — scaffolding, adapters, infraestrutura, integração, guias, revisão, entrevista. Rode o agente local ou na nuvem: o protocolo é o mesmo. Tasks que exigem conversa com você são marcadas **interativas**. |
 | 📋 | **Código para digitar** — eu entrego o código em `docs/fases/faseN-guia.md` no início de cada fase; você digita (não copia) e commita. |
 | 💥 | **Exercício de quebra** — provocamos a falha de propósito para ver o padrão resolver. |
 | 🎤 | **Entrevista técnica** — ao fim da fase, conceitos que um entrevistador realmente cobra (nada de sintaxe). |
 | 📝 | **ADR** — decisão registrada em `docs/adr/`. |
 
-> Este documento é o **roteiro** (o porquê e o quê aprender). As tasks executáveis de cada fase, com dono, dependências, testes e gate, ficam em `.specs/features/faseN-*/` (skill `tlc-spec-driven`). O protocolo local × nuvem está em [`fluxo-de-trabalho.md`](fluxo-de-trabalho.md).
+> Este documento é o **roteiro** (o porquê e o quê aprender). As tasks executáveis de cada fase, com dono, dependências, testes e gate, ficam em `.specs/features/faseN-*/` (skill `tlc-spec-driven`). O protocolo de execução (owner, branch, PR) está em [`fluxo-de-trabalho.md`](fluxo-de-trabalho.md).
 
 **Ritmo de cada fase**
 
 1. Eu apresento a **história de falha** (o bug real que o padrão previne), abro a fase em `.specs/` (spec → design → tasks, aprovados por você) e gero o guia.
 2. Você faz a **trilha 🧑** (≈ 1,5–2 h por fase; as tarefas estão ordenadas por prioridade — se faltar tempo, pare em qualquer ponto após as marcadas ⭐).
-3. A trilha do agente roda em paralelo: tasks ☁️ na nuvem (um PR por task) e revisão local do que você commitou.
+3. A trilha do agente roda em paralelo (um PR por task), e o agente revisa o que você commitou quando você pedir.
 4. Fazemos os **💥 exercícios de quebra** e registramos as evidências (saídas de comando, métricas) em `docs/experiments/faseN.md`.
 5. **🎤 Entrevista** no chat: de 5 a 8 perguntas, uma por vez; você responde com as suas palavras e só então eu dou feedback (o que estava certo, o que faltou, o que um entrevistador sênior esperaria). Perguntas fracas voltam nas entrevistas seguintes (revisão espaçada). O registro fica em `docs/entrevistas/faseN.md`.
 6. Atualizamos os **📝 ADRs**.
@@ -72,7 +72,7 @@ Inspiradas nas invariantes do `platform-eda`; cada uma é provada por teste, exp
 
 | Fase | Tema | Máquina 🤖 | Você 🧑 |
 |---|---|---:|---:|
-| 0 | Fundações: Money, Clock, IDs, CI, ADRs | 1,5 h | 1 h |
+| 0 | Fundações: Money, Clock, IDs, CI, ADRs | 2 h | 0,5 h |
 | 1 | Domínio `Transfer` + State Machine (DDD/Hexagonal) | 2,5 h | 2 h |
 | 2 | Event Sourcing: Event Store + `Account` + concorrência | 3,5 h | 2 h |
 | 3 | API idempotente + observabilidade base | 3 h | 1,5 h |
@@ -81,7 +81,7 @@ Inspiradas nas invariantes do `platform-eda`; cada uma é provada por teste, exp
 | 6 | TSP assíncrono (PIX): incerteza, webhooks, resiliência | 4 h | 2 h |
 | 7 | Saga/Process Manager + Reconciliação | 4 h | 2 h |
 | 8 | Segurança, compliance e operação | 3 h | 1,5 h |
-| | **Total** | **≈ 26 h** | **≈ 15,5 h** |
+| | **Total** | **≈ 26,5 h** | **≈ 15 h** |
 
 Mudanças em relação ao plano v1: state machine foi para a Fase 1 (os estados já existiam lá); **Event Sourcing** (agora também no saldo da conta) e **API idempotente** vieram *antes* de mensageria; a **contabilização** (lançamentos de dupla entrada) é uma projeção pós-transacional (Fase 4); o TSP deixou de ser síncrono; observabilidade é transversal; segurança/compliance ganhou fase própria.
 
@@ -96,15 +96,14 @@ Mudanças em relação ao plano v1: state machine foi para a Fase 1 (os estados 
 **Entregas**
 - 🤖 Projeto Gradle, estrutura de pacotes hexagonal, Postgres no `docker compose`, GitHub Actions (build + test), regras **ArchUnit** (domínio não depende de framework; adapters não são acessados pelo domínio).
 - 🤖 `sharedkernel`: `Currency`, `DomainException`, porta `IdGenerator`; infraestrutura: `UuidV7Generator`; `java.time.Clock` injetado (com regra ArchUnit que proíbe `now()` no domínio). (`Document` fica para a Fase 1, onde você implementa a validação.)
-- ☁️ (pendente) beans de `Clock` UTC e `IdGenerator`; regra ArchUnit que proíbe `UUID.randomUUID()` no código puro. Tasks em `.specs/features/fase0-fundacoes/`.
+- 🤖 (pendente) `Money` e `Money.allocate` (com property test), beans de `Clock` UTC e `IdGenerator`, regra ArchUnit que proíbe `UUID.randomUUID()` no código puro e os 💥 exercícios de quebra. Tasks em `.specs/features/fase0-fundacoes/`.
 - 📝 ADR-0012 (modelo de I/O: MVC + JDBC + virtual threads).
 - 📝 ADR-0011 (estrutura hexagonal/DDD por bounded context e Shared Kernel explícito).
 - 📝 ADR-0001 (stack/versões — eu valido as versões vigentes), ADR-0002 (dinheiro em minor units).
 
-**🧑 Sua trilha**
-- ⭐ (30 min) Digitar `Money` (📋) no `sharedkernel` e escrever seus próprios testes de borda (negativo, moedas diferentes, overflow).
-- ⭐ (30 min) Implementar `Money.allocate(ratios)` — dividir R$ 100,00 em 3 sem perder centavo — com **property test** (soma das partes == total, para qualquer entrada).
-- (15 min) Revisar e editar os ADR-0001/0002 com suas palavras.
+**🧑 Sua trilha** (decisão do autor: implementar os VOs do `sharedkernel` não traz ganho relevante de conhecimento; ver `docs/fases/fase0-guia.md`)
+- ⭐ (30 min) Revisar e editar com suas palavras os ADRs 0001, 0002, 0004, 0011 e 0012, usando o roteiro de perguntas do guia.
+- (opcional, 10 min) Ler os PRs de `Money`/`allocate` e os exercícios de quebra como material de estudo.
 
 **Critérios de aceitação**
 1. `./gradlew build test` verde local e no CI.
@@ -395,7 +394,7 @@ money-out/
 │   └── features/faseN-*/   # spec.md, design.md, tasks.md, validation.md por fase
 ├── docs/
 │   ├── PLANO.md            # este documento (roteiro)
-│   ├── fluxo-de-trabalho.md# protocolo local × nuvem
+│   ├── fluxo-de-trabalho.md# owner, branch e PR por task
 │   ├── adr/                # decisões arquiteturais
 │   ├── fases/              # faseN-guia.md (📋 código para digitar)
 │   ├── experiments/        # faseN.md (evidências dos exercícios de quebra)
