@@ -37,6 +37,23 @@ Motivo: o autor questionou o pacote `shared/domain` (o `Money` tem invariantes; 
 
 Verificação (cópias descartáveis): `Bad` no `sharedkernel` com `@Component`, `Instant.now()` e `Double` ⇒ falharam `pureCodeHasNoFrameworkDependency`, `pureCodeDoesNotReadGlobalClock` e `pureCodeDoesNotUseFloatingPoint`. Uma classe do `sharedkernel` usando `com.moneyout.transfer.Anything` ⇒ falhou `sharedKernelDoesNotDependOnAnyContext`. (Uma primeira tentativa não falhou porque o `import` estava sem uso, logo sem dependência no bytecode; o teste da regra estava errado, não a regra.) O código do guia da Fase 0 compila no pacote novo.
 
+## F0-05 — Migração da toolchain para Java 25 (2026-10-13)
+
+Motivo: começar na LTS mais recente para não ficar preso a bibliotecas defasadas ao longo do projeto e alinhar com o `platform-eda`. Fontes consultadas:
+
+| Item | Resultado | Fonte |
+|---|---|---|
+| Kotlin 2.3.21 | gera bytecode Java 25 desde a 2.3.0 | [What's new in Kotlin 2.3.0](https://kotlinlang.org/docs/whatsnew23.html) |
+| Gradle 9.8.1 | toolchain e execução em Java 25 desde a 9.1.0 | [Gradle compatibility matrix](https://docs.gradle.org/current/userguide/compatibility.html) |
+| Spring Boot 4.1.1 | Java 17 até 26 | [System requirements](https://docs.spring.io/spring-boot/system-requirements.html) |
+| Virtual threads | `synchronized` não prende mais a carrier thread desde o JDK 24; pinning só via código nativo | [JEP 491](https://openjdk.org/jeps/491) |
+
+Observação: a tabela de compatibilidade do Kotlin Gradle Plugin lista Gradle até 9.3.0 para o KGP 2.3.21 ([Kotlin docs](https://kotlinlang.org/docs/gradle-configure-project.html)). O projeto já roda com Gradle 9.8.1 (build verde, F0-02 a F0-04): versões acima da máxima testada funcionam, mas sem garantia formal. Fica para revisar quando o BOM do Spring Boot trouxer um Kotlin mais novo.
+
+Verificação: `./gradlew build` ⇒ BUILD SUCCESSFUL com JDK Temurin 25.0.4; 13 testes; `javap` mostra `major version: 69` (Java 25) nas classes compiladas.
+
+Mudanças: `jvmToolchain(25)` no `build.gradle.kts`, `java-version: 25` no CI, ADR-0001, ADR-0012, `.claude/rules/kotlin.md`, `README.md` e `docs/PLANO.md`.
+
 ## Exercícios de quebra
 
 > Preenchido pelo agente na task T6 (`.specs/features/fase0-fundacoes/tasks.md`): o que foi quebrado, qual regra falhou e por quê.

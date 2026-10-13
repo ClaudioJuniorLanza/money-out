@@ -39,7 +39,7 @@ Legenda usada nas fases:
 
 ## 3. Stack
 
-Decisões completas em [`adr/0001`](adr/0001-stack-e-versoes.md). Resumo: Java 21 / Kotlin 2.3, Spring Boot 4.1, Gradle 9.8 (Kotlin DSL), PostgreSQL + Flyway, Apache Kafka (ver [ADR-0008](adr/0008-kafka-e-integracao-com-platform-eda.md)); I/O com MVC + JDBC + virtual threads ([ADR-0012](adr/0012-modelo-de-io-mvc-jdbc-virtual-threads.md)), JUnit 5 + Kotest (property-based) + Testcontainers + ArchUnit, Micrometer/OpenTelemetry, Docker Compose, GitHub Actions.
+Decisões completas em [`adr/0001`](adr/0001-stack-e-versoes.md). Resumo: Java 25 / Kotlin 2.3, Spring Boot 4.1, Gradle 9.8 (Kotlin DSL), PostgreSQL + Flyway, Apache Kafka (ver [ADR-0008](adr/0008-kafka-e-integracao-com-platform-eda.md)); I/O com MVC + JDBC + virtual threads ([ADR-0012](adr/0012-modelo-de-io-mvc-jdbc-virtual-threads.md)), JUnit 5 + Kotest (property-based) + Testcontainers + ArchUnit, Micrometer/OpenTelemetry, Docker Compose, GitHub Actions.
 
 ## 4. Princípios inegociáveis de pagamentos
 

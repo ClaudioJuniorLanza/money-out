@@ -9,7 +9,7 @@ group = "com.moneyout"
 version = "0.1.0-SNAPSHOT"
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
     compilerOptions {
         freeCompilerArgs.add("-Xjsr305=strict")
         allWarningsAsErrors.set(true)

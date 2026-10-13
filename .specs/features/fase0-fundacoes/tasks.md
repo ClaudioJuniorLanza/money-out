@@ -78,7 +78,7 @@ T3 -> T4 -> T6
 
 - [ ] Teste de contexto em `src/test/kotlin/com/moneyout/infrastructure/config/TimeAndIdConfigurationTest.kt` afirma: um único bean `Clock`, `zone == ZoneOffset.UTC`; bean `IdGenerator` é `UuidV7Generator`
 - [ ] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
-- [ ] Test count: 12 → ≥ 14 (nenhum teste removido)
+- [ ] Test count: 13 → ≥ 15 (nenhum teste removido)
 
 **Tests**: integration
 **Gate**: build
@@ -103,7 +103,7 @@ T3 -> T4 -> T6
 **Done when**:
 
 - [ ] Regra cobre `..domain..` e `..sharedkernel..`
-- [ ] Prova numa cópia descartável (nunca no working tree real): classe no `sharedkernel` chamando `UUID.randomUUID()` derruba só a regra nova; resultado registrado como F0-05 em `docs/experiments/fase-0.md`
+- [ ] Prova numa cópia descartável (nunca no working tree real): classe no `sharedkernel` chamando `UUID.randomUUID()` derruba só a regra nova; resultado registrado como F0-06 em `docs/experiments/fase-0.md`
 - [ ] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
 - [ ] Test count: +1 regra ArchUnit, nenhuma removida
 

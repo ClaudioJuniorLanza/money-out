@@ -19,7 +19,7 @@
 
 ## Stack e dependências
 
-- Spring Boot 4.1, Kotlin 2.3, Java 21 (toolchain), Gradle Kotlin DSL. As versões vêm do BOM do Spring Boot; só o que ele não gerencia entra em `gradle/libs.versions.toml` (ADR-0001). Versão nova = conferir na fonte e registrar em `docs/experiments/faseN.md`.
+- Spring Boot 4.1, Kotlin 2.3, Java 25 (toolchain, LTS), Gradle Kotlin DSL. As versões vêm do BOM do Spring Boot; só o que ele não gerencia entra em `gradle/libs.versions.toml` (ADR-0001). Versão nova = conferir na fonte e registrar em `docs/experiments/faseN.md`.
 - Web: Spring MVC (`spring-boot-starter-web`/`webmvc`, conforme o nome vigente no Boot 4 — confira antes de adicionar). Nada de WebFlux nem coroutines na aplicação (ADR-0012).
 - Banco: PostgreSQL + Flyway + `JdbcClient` (Spring JDBC). Sem JPA/Hibernate: o event store e as projeções são SQL explícito.
 - Concorrência: virtual threads (`spring.threads.virtual.enabled: true`) quando entrar o servidor web.

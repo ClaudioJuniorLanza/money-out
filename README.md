@@ -10,7 +10,7 @@ Laboratório de aprendizado em engenharia de pagamentos (payout no Brasil: PIX/T
 
 ## Como rodar
 
-Requisitos: JDK 21 e Docker (Docker só a partir da Fase 2).
+Requisitos: JDK 25 e Docker (Docker só a partir da Fase 2).
 
 ```bash
 ./gradlew build          # compila, lint (ktlint), testes e regras de arquitetura (ArchUnit)
