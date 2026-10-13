@@ -1,0 +1,11 @@
+package com.moneyout
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+
+@SpringBootApplication
+class MoneyOutApplication
+
+fun main(args: Array<String>) {
+    runApplication<MoneyOutApplication>(*args)
+}
