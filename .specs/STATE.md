@@ -44,11 +44,11 @@
 
 ## Handoff
 
-- **Feature**: `.specs/features/fase0-fundacoes/` (fechamento); `.specs/features/fase1-transfer/` em Draft
-- **Phase / Task**: Fase 0 — specs e tasks revisadas pelo autor, ajustes de ownership aplicados (AD-004, AD-005); aguardando aprovação final
+- **Feature**: `.specs/features/fase0-fundacoes/` (fechamento); `.specs/features/fase1-transfer/` aprovada
+- **Phase / Task**: Fase 0 — specs e tasks aprovadas pelo autor (2026-10-13); Fase 1 aprovada, aguardando o fechamento da Fase 0
 - **Completed**: nenhuma task das specs; scaffolding da Fase 0 já entregue (`docs/experiments/fase-0.md` F0-01..F0-04)
 - **In-progress** (file:line): none
-- **Next step**: autor aprova as duas specs; integra `chore/organiza-planejamento` no `main`; delega Fase 0 T1–T4 e T6 a um agente; revisa os ADRs (T5).
+- **Next step**: merge do PR desta branch no `main`; delegar Fase 0 T1–T4 e T6 a um agente; autor revisa os ADRs (T5).
 - **Blockers**: o scaffolding da Fase 0 (commits 243d404 e 598f63d) ainda não está no `main`, e os agentes partem do `main`.
 - **Uncommitted files**: none
 - **Branch**: `chore/organiza-planejamento`

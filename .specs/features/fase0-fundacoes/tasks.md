@@ -14,7 +14,7 @@ Antes de começar qualquer task, leia [`docs/fluxo-de-trabalho.md`](../../../doc
 ---
 
 **Spec**: `.specs/features/fase0-fundacoes/spec.md`
-**Status**: Draft — aguardando aprovação do autor
+**Status**: Approved (autor, 2026-10-13)
 
 ---
 

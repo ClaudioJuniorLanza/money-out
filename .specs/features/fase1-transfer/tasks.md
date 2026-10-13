@@ -17,7 +17,7 @@ Antes de qualquer task, leia [`docs/fluxo-de-trabalho.md`](../../../docs/fluxo-d
 
 **Spec**: `.specs/features/fase1-transfer/spec.md`
 **Design**: `.specs/features/fase1-transfer/design.md`
-**Status**: Draft — aguardando aprovação do autor
+**Status**: Approved (autor, 2026-10-13)
 
 ---
 

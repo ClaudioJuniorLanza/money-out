@@ -1,7 +1,7 @@
 # Fase 1 — Domínio `Transfer` Design
 
 **Spec**: `.specs/features/fase1-transfer/spec.md`
-**Status**: Draft — aguardando aprovação do autor
+**Status**: Approved (autor, 2026-10-13)
 **Decisões de projeto que este design segue**: ADR-0002, ADR-0003, ADR-0011, ADR-0012; `.specs/STATE.md` AD-001 e AD-002; regras em `.claude/rules/`.
 
 ---

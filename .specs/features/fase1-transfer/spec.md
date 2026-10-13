@@ -1,7 +1,7 @@
 # Fase 1 — Domínio `Transfer` + State Machine Specification
 
 > Roteiro e didática: [`docs/PLANO.md`](../../../docs/PLANO.md#fase-1--domínio-transfer--state-machine-dddhexagonal). Design: [`design.md`](design.md). Pré-requisito: Fase 0 fechada (`.specs/features/fase0-fundacoes/`).
-> **Status:** Draft — aguardando aprovação do autor. As premissas marcadas "a confirmar" dependem da task de verificação na fonte (T1) e podem mudar ACs.
+> **Status:** Approved (autor, 2026-10-13). As premissas marcadas "a confirmar" dependem da task de verificação na fonte (T1) e podem mudar ACs.
 
 ## Problem Statement
 
