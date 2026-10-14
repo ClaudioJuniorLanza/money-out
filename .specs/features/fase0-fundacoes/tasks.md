@@ -76,9 +76,9 @@ T3 -> T4 -> T6
 
 **Done when**:
 
-- [ ] Teste de contexto em `src/test/kotlin/com/moneyout/infrastructure/config/TimeAndIdConfigurationTest.kt` afirma: um único bean `Clock`, `zone == ZoneOffset.UTC`; bean `IdGenerator` é `UuidV7Generator`
-- [ ] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
-- [ ] Test count: 13 → ≥ 15 (nenhum teste removido)
+- [x] Teste de contexto em `src/test/kotlin/com/moneyout/infrastructure/config/TimeAndIdConfigurationTest.kt` afirma: um único bean `Clock`, `zone == ZoneOffset.UTC`; bean `IdGenerator` é `UuidV7Generator`
+- [x] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
+- [x] Test count: 13 → ≥ 15 (nenhum teste removido)
 
 **Tests**: integration
 **Gate**: build
