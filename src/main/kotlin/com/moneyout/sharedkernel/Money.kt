@@ -1,5 +1,7 @@
 package com.moneyout.sharedkernel
 
+import java.math.BigInteger
+
 /**
  * Valor monetário exato: inteiro em unidade mínima ([minorUnits], centavos no BRL) + [currency] (ADR-0002).
  *
@@ -34,6 +36,31 @@ data class Money(
     fun isPositive(): Boolean = minorUnits > 0L
 
     fun isNegative(): Boolean = minorUnits < 0L
+
+    /**
+     * Divide o valor proporcionalmente a [ratios] sem perder nem criar centavo: a soma das partes é exatamente
+     * este valor. Cada parte é o piso da fração exata e o resto (sempre menor que o número de partes) é
+     * distribuído de 1 em 1 minor unit a partir das primeiras partes; assim cada parte difere da fração
+     * exata em menos de 1 minor unit.
+     *
+     * O cálculo é feito sobre o módulo em [BigInteger] e o sinal é aplicado no fim: `total * ratio` pode
+     * passar de `Long` (e `|Long.MIN_VALUE|` também), então nunca multiplicamos em `Long`.
+     */
+    fun allocate(ratios: List<Int>): List<Money> {
+        if (ratios.isEmpty()) throw DomainException("allocate exige ao menos um ratio")
+        if (ratios.any { it <= 0 }) throw DomainException("allocate exige ratios maiores que zero")
+
+        val magnitude = BigInteger.valueOf(minorUnits).abs()
+        val ratiosSum = BigInteger.valueOf(ratios.sumOf { it.toLong() })
+        val floors = ratios.map { magnitude.multiply(BigInteger.valueOf(it.toLong())).divide(ratiosSum) }
+        val remainder = magnitude.subtract(floors.fold(BigInteger.ZERO, BigInteger::add)).toInt()
+        val sign = if (minorUnits < 0) -1 else 1
+
+        return floors.mapIndexed { index, floor ->
+            val part = if (index < remainder) floor.add(BigInteger.ONE) else floor
+            Money(part.multiply(BigInteger.valueOf(sign.toLong())).longValueExact(), currency)
+        }
+    }
 
     private fun requireSameCurrency(other: Money) {
         if (currency != other.currency) throw DomainException("Operacao entre moedas diferentes")

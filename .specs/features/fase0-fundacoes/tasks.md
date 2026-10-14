@@ -150,9 +150,9 @@ T3 -> T4 -> T6
 
 **Done when**:
 
-- [ ] `MoneyAllocateTest.kt` com o exemplo concreto (R$ 100,00 em 3 ⇒ 33,34 + 33,33 + 33,33) e uma `checkAll` por propriedade: soma == total; tamanho == `ratios.size`; cada parte a menos de 1 minor unit da fração exata; ratios iguais ⇒ partes diferem no máximo em 1; entrada inválida ⇒ `DomainException`
-- [ ] Os três edge cases da spec cobertos (total negativo, `total * ratio` grande, `Long.MIN_VALUE`)
-- [ ] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
+- [x] `MoneyAllocateTest.kt` com o exemplo concreto (R$ 100,00 em 3 ⇒ 33,34 + 33,33 + 33,33) e uma `checkAll` por propriedade: soma == total; tamanho == `ratios.size`; cada parte a menos de 1 minor unit da fração exata; ratios iguais ⇒ partes diferem no máximo em 1; entrada inválida ⇒ `DomainException`
+- [x] Os três edge cases da spec cobertos (total negativo, `total * ratio` grande, `Long.MIN_VALUE`)
+- [x] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
 
 **Tests**: unit
 **Gate**: build
