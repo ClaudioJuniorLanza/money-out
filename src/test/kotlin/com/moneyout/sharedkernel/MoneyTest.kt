@@ -90,7 +90,7 @@ class MoneyTest {
 
     @Test
     fun `somar e subtrair o mesmo valor devolve o original`() =
-        runBlocking {
+        runBlocking<Unit> {
             /** @Dado quaisquer valores cuja soma não estoura Long */
             val safe = Arb.long(-Long.MAX_VALUE / 2, Long.MAX_VALUE / 2)
 

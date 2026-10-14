@@ -79,7 +79,7 @@ class MoneyAllocateTest {
 
     @Test
     fun `propriedade - a soma das partes e exatamente o total`() =
-        runBlocking {
+        runBlocking<Unit> {
             checkAll(totals, ratiosArb) { total, ratios ->
                 /** @Então nenhum centavo é perdido ou criado */
                 brl(total).allocate(ratios).sumOf { it.minorUnits.toBigInteger() } shouldBe big(total)
@@ -88,7 +88,7 @@ class MoneyAllocateTest {
 
     @Test
     fun `propriedade - o tamanho da lista e o numero de ratios`() =
-        runBlocking {
+        runBlocking<Unit> {
             checkAll(totals, ratiosArb) { total, ratios ->
                 brl(total).allocate(ratios).size shouldBe ratios.size
             }
@@ -96,7 +96,7 @@ class MoneyAllocateTest {
 
     @Test
     fun `propriedade - cada parte difere da fracao exata em menos de 1 minor unit`() =
-        runBlocking {
+        runBlocking<Unit> {
             checkAll(totals, ratiosArb) { total, ratios ->
                 val sum = ratios.sumOf { it.toLong() }.toBigInteger()
                 brl(total).allocate(ratios).zip(ratios).forEach { (part, ratio) ->
@@ -109,7 +109,7 @@ class MoneyAllocateTest {
 
     @Test
     fun `propriedade - ratios iguais geram partes que diferem em no maximo 1`() =
-        runBlocking {
+        runBlocking<Unit> {
             checkAll(totals, Arb.int(1..50), Arb.int(1..1_000)) { total, count, ratio ->
                 val parts = brl(total).allocate(List(count) { ratio }).map { it.minorUnits.toBigInteger() }
                 val spread = parts.max() - parts.min()
@@ -119,7 +119,7 @@ class MoneyAllocateTest {
 
     @Test
     fun `propriedade - entrada invalida sempre lanca DomainException`() =
-        runBlocking {
+        runBlocking<Unit> {
             val invalid =
                 Arb
                     .list(Arb.int(Int.MIN_VALUE..Int.MAX_VALUE), 1..8)
