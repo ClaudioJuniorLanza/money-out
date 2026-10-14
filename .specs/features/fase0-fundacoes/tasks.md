@@ -129,9 +129,9 @@ T3 -> T4 -> T6
 
 **Done when**:
 
-- [ ] `MoneyTest.kt` cobre ACs 1–3 de "Dinheiro seguro" e o edge case de `-Money(Long.MIN_VALUE)`
-- [ ] Teste de "moedas diferentes": se não for possível com uma moeda só, o motivo fica registrado no KDoc do teste e no commit (premissa da spec)
-- [ ] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
+- [x] `MoneyTest.kt` cobre ACs 1–3 de "Dinheiro seguro" e o edge case de `-Money(Long.MIN_VALUE)`
+- [x] Teste de "moedas diferentes": se não for possível com uma moeda só, o motivo fica registrado no KDoc do teste e no commit (premissa da spec)
+- [x] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
 
 **Tests**: unit
 **Gate**: build
