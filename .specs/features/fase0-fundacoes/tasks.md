@@ -171,8 +171,8 @@ T3 -> T4 -> T6
 
 **Done when**:
 
-- [ ] Seção "Exercícios de quebra" com, para cada exercício, a saída relevante do build e a explicação em linguagem de entrevista
-- [ ] Working tree real intacto (`git status` igual ao de antes do exercício)
+- [x] Seção "Exercícios de quebra" com, para cada exercício, a saída relevante do build e a explicação em linguagem de entrevista
+- [x] Working tree real intacto (`git status` igual ao de antes do exercício)
 
 **Tests**: none
 **Gate**: build

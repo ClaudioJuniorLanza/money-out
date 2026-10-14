@@ -71,4 +71,32 @@ Ambiente: a sessão de nuvem só tinha JDK 21; o JDK 25 (Oracle, `download.oracl
 
 ## Exercícios de quebra
 
-> Preenchido pelo agente na task T6 (`.specs/features/fase0-fundacoes/tasks.md`): o que foi quebrado, qual regra falhou e por quê.
+Cada exercício foi feito numa **cópia descartável** do projeto (a mutação nunca tocou o working tree real; `git status` igual antes e depois). Comando em cada cópia: `./gradlew test --continue`. Os exercícios 1–3 rodaram sobre 31 testes e o 4 sobre 37: entre eles entrou a correção descrita em "Achado extra", que fez 6 property tests passarem a executar (as regras do ArchUnit não dependem disso).
+
+| # | Quebra | Quem pegou | Resultado |
+|---|---|---|---|
+| 1a | `Money.minorUnits: Long` → `Double` | compilador | `compileKotlin FAILED`, dezenas de `Argument type mismatch: actual type is 'Long', but 'Double' was expected` / `Math.addExact` não aceita `Double` |
+| 1b | classe `BadMoney(val minorUnits: Double)` no `sharedkernel` | ArchUnit `pureCodeDoesNotUseFloatingPoint` | 31 testes, 1 falha (só essa regra) |
+| 2 | `Instant.now()` no `sharedkernel` | ArchUnit `pureCodeDoesNotReadGlobalClock` | 31 testes, 1 falha |
+| 3 | `@Component` (Spring) no `sharedkernel` | ArchUnit `pureCodeHasNoFrameworkDependency` | 31 testes, 1 falha |
+| 4 | `allocate` que ignora o resto (`val part = floor`) | `MoneyAllocateTest` (property `a soma das partes e exatamente o total`, mais 3 exemplos) | 37 testes, 4 falhas |
+
+### 1 — dinheiro em ponto flutuante
+
+Como o `Money` do projeto usa `Math.addExact`/`subtractExact`/`negateExact`, trocar o tipo para `Double` nem compila: a aritmética exata só existe para inteiros. Foi o **tipo** que protegeu, antes de qualquer teste. A regra do ArchUnit (1b) cobre o caso em que alguém não toca no `Money`, mas cria outro VO com `double`/`float`; ela olha campos declarados no código puro, então não pegaria um `Double` só em variável local. Linguagem de entrevista: `0.1 + 0.2 != 0.3` em binário; centavos em inteiro somam exatamente, e o sistema de tipos impede a regressão no ponto mais barato.
+
+### 2 — relógio global no código puro
+
+`Instant.now()` dentro do `sharedkernel` derruba `pureCodeDoesNotReadGlobalClock`. O motivo é determinismo: um domínio que lê o relógio não é reproduzível em teste nem em rehidratação. O tempo entra por parâmetro, vindo do `Clock` injetado (bean da T1).
+
+### 3 — framework no núcleo
+
+`@Component` no `sharedkernel` derruba `pureCodeHasNoFrameworkDependency`. A dependência que importa é a que fica no **bytecode** (a regra analisa bytecode): um `import` sem uso não conta, como já visto no F0-04. Linguagem de entrevista: o domínio não conhece o container; quem depende de quem aponta para dentro (ADR-0011).
+
+### 4 — `allocate` sem o resto
+
+Sem distribuir o resto, R$ 100,00 em 3 vira 33,33 + 33,33 + 33,33 = 99,99: um centavo some. Falharam a propriedade principal (`soma == total`, com `Property failed after 1 attempts` e seed reproduzível) e os exemplos concretos (`expected:<3334L> but was:<3333L>`, positivo e negativo, e o caso de `Long.MAX_VALUE`). A propriedade "cada parte a menos de 1 minor unit da fração exata" **continuou verde**: o piso da fração também satisfaz esse limite, então ele sozinho não detecta o resto perdido. Quem protege o centavo é a invariante da soma, não a de proximidade; as duas juntas caracterizam o algoritmo.
+
+### Achado extra: property tests que não rodavam
+
+Ao preparar o exercício 4, a mutação só derrubava 3 exemplos e **nenhuma** propriedade. A causa: testes escritos como `fun x() = runBlocking { checkAll(...) }` devolvem `PropertyContext`, e o JUnit só executa métodos de teste `void`. Os 6 property tests de `MoneyTest`/`MoneyAllocateTest` eram descobertos como inexistentes (31 testes em vez de 37) e o build ficava verde. Correção: `runBlocking<Unit>` (commit `test(sharedkernel): executa os property tests de money`). Lição: um teste que nunca falha pode ser um teste que nunca roda; a contagem de testes e a mutação deliberada são o que desmascara isso. A `tests.md` já prescreve `runBlocking { checkAll }`; vale lembrar do `<Unit>` ao copiar o padrão.
