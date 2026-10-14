@@ -102,10 +102,10 @@ T3 -> T4 -> T6
 
 **Done when**:
 
-- [ ] Regra cobre `..domain..` e `..sharedkernel..`
-- [ ] Prova numa cópia descartável (nunca no working tree real): classe no `sharedkernel` chamando `UUID.randomUUID()` derruba só a regra nova; resultado registrado como F0-06 em `docs/experiments/fase-0.md`
-- [ ] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
-- [ ] Test count: +1 regra ArchUnit, nenhuma removida
+- [x] Regra cobre `..domain..` e `..sharedkernel..`
+- [x] Prova numa cópia descartável (nunca no working tree real): classe no `sharedkernel` chamando `UUID.randomUUID()` derruba só a regra nova; resultado registrado como F0-06 em `docs/experiments/fase-0.md`
+- [x] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
+- [x] Test count: +1 regra ArchUnit, nenhuma removida
 
 **Tests**: unit
 **Gate**: build

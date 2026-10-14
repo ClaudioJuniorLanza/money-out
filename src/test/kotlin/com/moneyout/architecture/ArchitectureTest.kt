@@ -13,13 +13,14 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZonedDateTime
+import java.util.UUID
 
 /**
  * Fronteiras de arquitetura executáveis (ADR-0011). Se uma destas regras falhar, o build falha.
  *
  * Estrutura: `sharedkernel` (núcleo mínimo compartilhado) e, por bounded context,
  * `<contexto>.domain`, `<contexto>.application` e `<contexto>.infrastructure`.
- * Código "puro" = `..domain..` e `..sharedkernel..`: sem framework, sem relógio global, sem ponto flutuante.
+ * Código "puro" = `..domain..` e `..sharedkernel..`: sem framework, sem relógio global, sem `UUID.randomUUID()`, sem ponto flutuante.
  */
 @AnalyzeClasses(packages = ["com.moneyout"], importOptions = [ImportOption.DoNotIncludeTests::class])
 class ArchitectureTest {
@@ -71,6 +72,14 @@ class ArchitectureTest {
             .callMethod(ZonedDateTime::class.java, "now")
             .orShould()
             .callMethod(System::class.java, "currentTimeMillis")
+
+    @ArchTest
+    val pureCodeDoesNotGenerateRandomIds: ArchRule =
+        noClasses()
+            .that()
+            .resideInAnyPackage(DOMAIN, KERNEL)
+            .should()
+            .callMethod(UUID::class.java, "randomUUID")
 
     @ArchTest
     val pureCodeDoesNotUseFloatingPoint: ArchRule =

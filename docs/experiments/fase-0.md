@@ -54,6 +54,21 @@ Verificação: `./gradlew build` ⇒ BUILD SUCCESSFUL com JDK Temurin 25.0.4; 13
 
 Mudanças: `jvmToolchain(25)` no `build.gradle.kts`, `java-version: 25` no CI, ADR-0001, ADR-0012, `.claude/rules/kotlin.md`, `README.md` e `docs/PLANO.md`.
 
+## F0-06 — Regra contra `UUID.randomUUID()` no código puro (2026-10-14)
+
+Regra nova `pureCodeDoesNotGenerateRandomIds` na `ArchitectureTest`, cobrindo `..domain..` e `..sharedkernel..` (em `application` o `IdGenerator` é injetado, então a regra global fica só no código puro; spec, premissa 3).
+
+Prova (cópia descartável do projeto, fora do working tree): classe `Bad` em `com.moneyout.sharedkernel` com `fun id(): UUID = UUID.randomUUID()`. Resultado do `./gradlew test --tests '*ArchitectureTest*'`: 7 testes, 1 falha, e a falha é só a regra nova:
+
+```text
+ArchitectureTest > pureCodeDoesNotGenerateRandomIds FAILED
+Rule 'no classes that reside in any package ['..domain..', '..sharedkernel..'] should call method UUID.randomUUID()' was violated (1 times)
+```
+
+As outras 6 regras continuaram verdes. No working tree real a regra passa (`git status` limpo após a prova).
+
+Ambiente: a sessão de nuvem só tinha JDK 21; o JDK 25 (Oracle, `download.oracle.com`) foi baixado fora do repositório e passado ao Gradle com `-Dorg.gradle.java.installations.paths`. O Central voltou a responder `429` em algumas resoluções; repetir resolveu.
+
 ## Exercícios de quebra
 
 > Preenchido pelo agente na task T6 (`.specs/features/fase0-fundacoes/tasks.md`): o que foi quebrado, qual regra falhou e por quê.
