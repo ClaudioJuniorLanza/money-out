@@ -24,7 +24,7 @@ Decisão: seguir o BOM do Spring Boot como fonte da verdade (política do ADR-00
 
 Achados durante o build:
 - O compilador (`allWarningsAsErrors`) pegou um erro real: em um `enum`, a inicialização de uma propriedade não pode usar o `companion object` (ainda não inicializado). Solução: propriedade calculada.
-- O ktlint rejeitou nomes de propriedade com crases (`val \`nome\``) nas regras do ArchUnit. Solução: camelCase nas propriedades; os nomes em português com crases continuam valendo para funções de teste.
+- O ktlint rejeitou nomes de propriedade com crases (`val \`nome\``) nas regras do ArchUnit. Solução: camelCase nas propriedades; as funções de teste continuam com crases (nome em inglês; convenção revista em 2026-10-17, ver `.claude/rules/tests/gherkin.md`).
 - O Maven Central devolveu `429 Too Many Requests` em várias resoluções de dependência neste ambiente de sessão; repetir o build com pausa resolveu (o Gradle guarda em cache o que já baixou). Não foi usado nenhum espelho alternativo.
 
 ## F0-03 — As regras de arquitetura não são vazias
