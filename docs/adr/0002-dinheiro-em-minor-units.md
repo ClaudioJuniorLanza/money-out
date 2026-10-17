@@ -1,6 +1,6 @@
 # 0002 — Dinheiro como inteiro em unidade mínima + moeda
 
-- **Status:** Proposta
+- **Status:** Aceita
 - **Data:** 2026-10-10
 - **Fase:** 0
 

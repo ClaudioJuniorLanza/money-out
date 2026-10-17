@@ -1,6 +1,6 @@
 # 0012 — Modelo de I/O: Spring MVC + JDBC bloqueante + virtual threads
 
-- **Status:** Proposta
+- **Status:** Aceita
 - **Data:** 2026-10-10
 - **Fase:** 0 (vale a partir das Fases 2 e 3)
 
