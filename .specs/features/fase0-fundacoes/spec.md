@@ -49,7 +49,7 @@ Toda fase seguinte depende de `Money` correto (sem perder centavo, sem somar moe
 2. IF dois `Money` de moedas diferentes são somados, subtraídos ou comparados THEN o sistema SHALL lançar `DomainException`.
 3. IF a soma, a subtração ou a negação estoura `Long` THEN o sistema SHALL lançar `DomainException` em vez de dar a volta.
 4. WHEN `allocate(ratios)` é chamado com ratios válidos THEN o sistema SHALL devolver uma lista do mesmo tamanho cuja soma é exatamente o total.
-5. WHEN `allocate(ratios)` é chamado THEN o sistema SHALL produzir partes que diferem da fração exata em menos de 1 minor unit, com os centavos restantes distribuídos a partir das primeiras partes.
+5. WHEN `allocate(ratios)` é chamado THEN o sistema SHALL produzir partes que diferem da fração exata em menos de 1 minor unit, com os centavos restantes distribuídos, de 1 em 1, a partir das primeiras partes de fração não inteira (uma parte já exata não recebe centavo extra).
 6. IF `ratios` é vazio ou contém valor menor ou igual a zero THEN o sistema SHALL lançar `DomainException`.
 
 **Independent Test**: `MoneyTest` e `MoneyAllocateTest` (property) verdes em `./gradlew build`.
@@ -106,7 +106,7 @@ Toda fase seguinte depende de `Money` correto (sem perder centavo, sem somar moe
 | F0-04 | P1: Tempo e ids (AC 3) | Tasks | Done |
 | F0-05 | P2: Fechamento (AC 1) | Tasks | Done |
 | F0-06 | P2: Fechamento (AC 2) | Tasks | Done |
-| F0-07 | P2: Fechamento (AC 3) | Tasks | Pending |
+| F0-07 | P2: Fechamento (AC 3) | Tasks | Done |
 
 **Coverage:** 7 total, 7 mapped to tasks, 0 unmapped.
 
