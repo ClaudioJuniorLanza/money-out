@@ -44,11 +44,11 @@
 
 ## Handoff
 
-- **Feature**: `.specs/features/fase0-fundacoes/` (fechamento); `.specs/features/fase1-transfer/` aprovada
-- **Phase / Task**: Fase 0 — specs e tasks aprovadas pelo autor (2026-10-13); Fase 1 aprovada, aguardando o fechamento da Fase 0
-- **Completed**: nenhuma task das specs; scaffolding da Fase 0 já entregue (`docs/experiments/fase-0.md` F0-01..F0-04)
+- **Feature**: `.specs/features/fase0-fundacoes/` (fechamento concluído); `.specs/features/fase1-transfer/` aprovada
+- **Phase / Task**: Fase 0 — T1–T7 concluídas; `validation.md` PASS e entrevista registrada em `docs/entrevistas/fase0.md`
+- **Completed**: T1, T2, T3, T4, T5, T6, T7 (Verifier PASS na iteração 1 de re-verificação, 39 testes)
 - **In-progress** (file:line): none
-- **Next step**: merge do PR desta branch no `main`; delegar Fase 0 T1–T4 e T6 a um agente; autor revisa os ADRs (T5).
-- **Blockers**: o scaffolding da Fase 0 (commits 243d404 e 598f63d) ainda não está no `main`, e os agentes partem do `main`.
+- **Next step**: merge do PR de fechamento; abrir a Fase 1 (entrevista: reforçar `BigDecimal`/escala, conservação do `allocate`, replay determinístico, `failOnEmptyShould=false`)
+- **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `chore/organiza-planejamento`
+- **Branch**: `claude/modest-bohr-l4v9ql`

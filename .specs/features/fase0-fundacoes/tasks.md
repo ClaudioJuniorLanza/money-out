@@ -224,9 +224,9 @@ T7
 
 **Done when**:
 
-- [ ] `.specs/features/fase0-fundacoes/validation.md` com veredito PASS e evidência `arquivo:linha` por AC
-- [ ] Entrevista registrada; perguntas fracas anotadas para voltarem na Fase 1
-- [ ] `python3 .claude/skills/tlc-spec-driven/scripts/validate_state.py fase0-fundacoes` passa
+- [x] `.specs/features/fase0-fundacoes/validation.md` com veredito PASS e evidência `arquivo:linha` por AC
+- [x] Entrevista registrada; perguntas fracas anotadas para voltarem na Fase 1
+- [x] `python3 .claude/skills/tlc-spec-driven/scripts/validate_state.py fase0-fundacoes` passa
 
 **Tests**: none
 **Gate**: build

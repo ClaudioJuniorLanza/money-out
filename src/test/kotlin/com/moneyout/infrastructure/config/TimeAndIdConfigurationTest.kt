@@ -10,6 +10,7 @@ import org.springframework.beans.factory.getBeansOfType
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import java.time.Clock
+import java.time.Instant
 import java.time.ZoneOffset
 
 @SpringBootTest
@@ -18,7 +19,7 @@ class TimeAndIdConfigurationTest(
 ) {
     @Test
     fun `Should expose exactly one Clock in UTC`() {
-        /** @Dado o contexto Spring em execução, @Quando os beans do tipo Clock são consultados */
+        /** @Quando os beans do tipo Clock são consultados */
         val clocks = context.getBeansOfType<Clock>()
 
         /** @Então existe um único Clock e a zona é UTC */
@@ -28,11 +29,28 @@ class TimeAndIdConfigurationTest(
 
     @Test
     fun `Should expose an IdGenerator implemented by UuidV7Generator`() {
-        /** @Dado o contexto Spring em execução, @Quando os beans do tipo IdGenerator são consultados */
+        /** @Quando os beans do tipo IdGenerator são consultados */
         val generators = context.getBeansOfType<IdGenerator>()
 
         /** @Então o único IdGenerator é o UuidV7Generator */
         generators.size shouldBe 1
         generators.values.single().shouldBeInstanceOf<UuidV7Generator>()
+    }
+
+    @Test
+    fun `Should build the IdGenerator from the injected Clock`() {
+        /** @Dado um Clock fixo entregue à configuração */
+        val fixedInstant = Instant.parse("2026-10-10T12:00:00.123Z")
+        val clock = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+        /** @Quando o IdGenerator é criado pela configuração e gera um id */
+        val uuid = TimeAndIdConfiguration().idGenerator(clock).next()
+
+        /** @Então o timestamp embutido no id é o instante do Clock injetado */
+        (uuid.mostSignificantBits ushr TIMESTAMP_SHIFT) shouldBe fixedInstant.toEpochMilli()
+    }
+
+    private companion object {
+        const val TIMESTAMP_SHIFT = 16 // UUIDv7: 48 bits de timestamp acima de versão + rand_a
     }
 }
