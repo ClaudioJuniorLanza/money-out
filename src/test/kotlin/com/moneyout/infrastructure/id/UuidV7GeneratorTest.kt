@@ -47,9 +47,7 @@ class UuidV7GeneratorTest {
         val earlier = earlierGenerator.next()
         val later = laterGenerator.next()
 
-        // UUID.compareTo é assinado; comparamos como texto (hex fixo), que é como o Postgres ordena uuid.
-
-        /** @Então o id mais antigo ordena antes do mais recente */
+        /** @Então o id mais antigo ordena antes do mais recente, comparando como texto (hex fixo), que é como o Postgres ordena uuid, porque UUID.compareTo é assinado */
         earlier.toString() shouldBeLessThan later.toString()
     }
 
