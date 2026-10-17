@@ -34,73 +34,127 @@ class MoneyAllocateTest {
     private fun big(value: Long) = BigInteger.valueOf(value)
 
     @Test
-    fun `R$ 100,00 em 3 partes iguais vira 33,34 mais 33,33 mais 33,33`() {
-        /** @Quando R$ 100,00 é dividido em 3 ratios iguais */
-        val parts = brl(10_000).allocate(listOf(1, 1, 1))
+    fun `Should split R$ 100,00 in 3 equal parts as 33,34 plus 33,33 plus 33,33`() {
+        /** @Dado R$ 100,00 e 3 ratios iguais */
+        val total = brl(10_000)
+
+        /** @Quando o valor é alocado */
+        val parts = total.allocate(listOf(1, 1, 1))
 
         /** @Então o centavo que sobra vai para a primeira parte */
         parts shouldBe listOf(brl(3_334), brl(3_333), brl(3_333))
     }
 
     @Test
-    fun `total negativo aplica o mesmo contrato com sinal`() {
-        brl(-10_000).allocate(listOf(1, 1, 1)) shouldBe listOf(brl(-3_334), brl(-3_333), brl(-3_333))
+    fun `Should apply the same contract with sign when the total is negative`() {
+        /** @Dado um total negativo e 3 ratios iguais */
+        val total = brl(-10_000)
+
+        /** @Quando o valor é alocado */
+        val parts = total.allocate(listOf(1, 1, 1))
+
+        /** @Então o centavo que sobra vai para a primeira parte, com sinal */
+        parts shouldBe listOf(brl(-3_334), brl(-3_333), brl(-3_333))
     }
 
     @Test
-    fun `total vezes ratio que estoura Long e calculado sem overflow`() {
-        /** @Quando Long.MAX_VALUE é dividido com ratios que fazem total * ratio passar de Long */
-        val parts = brl(Long.MAX_VALUE).allocate(listOf(Int.MAX_VALUE, Int.MAX_VALUE))
+    fun `Should allocate without overflow when total times ratio exceeds Long`() {
+        /** @Dado Long.MAX_VALUE e ratios que fazem total * ratio passar de Long */
+        val total = brl(Long.MAX_VALUE)
 
-        /** @Então a soma continua exatamente o total e as partes diferem em no máximo 1 */
+        /** @Quando o valor é alocado */
+        val parts = total.allocate(listOf(Int.MAX_VALUE, Int.MAX_VALUE))
+
+        /** @Então a soma continua exatamente o total */
         parts.sumOf { it.minorUnits.toBigInteger() } shouldBe big(Long.MAX_VALUE)
+
+        /** @E as partes diferem em no máximo 1 */
         parts shouldBe listOf(brl(4_611_686_018_427_387_904), brl(4_611_686_018_427_387_903))
     }
 
     @Test
-    fun `Long MIN_VALUE e alocavel sem overflow`() {
-        val parts = brl(Long.MIN_VALUE).allocate(listOf(1))
-        parts shouldBe listOf(brl(Long.MIN_VALUE))
+    fun `Should allocate Long MIN_VALUE without overflow`() {
+        /** @Dado o menor valor representável */
+        val total = brl(Long.MIN_VALUE)
 
-        val halves = brl(Long.MIN_VALUE).allocate(listOf(1, 1))
+        /** @Quando é alocado em uma parte e em duas partes iguais */
+        val whole = total.allocate(listOf(1))
+        val halves = total.allocate(listOf(1, 1))
+
+        /** @Então a parte única é o próprio total */
+        whole shouldBe listOf(brl(Long.MIN_VALUE))
+
+        /** @E as metades somam exatamente o total */
         halves shouldBe listOf(brl(Long.MIN_VALUE / 2), brl(Long.MIN_VALUE / 2))
     }
 
     @Test
-    fun `ratios vazio lanca DomainException`() {
-        shouldThrow<DomainException> { brl(100).allocate(emptyList()) }
+    fun `Should throw DomainException when ratios are empty`() {
+        /** @Dado um valor a alocar */
+        val total = brl(100)
+
+        /** @Então DomainException é lançada */
+        shouldThrow<DomainException> {
+            /** @Quando a lista de ratios é vazia */
+            total.allocate(emptyList())
+        }
     }
 
     @Test
-    fun `ratio zero ou negativo lanca DomainException`() {
-        shouldThrow<DomainException> { brl(100).allocate(listOf(1, 0)) }
-        shouldThrow<DomainException> { brl(100).allocate(listOf(1, -3)) }
+    fun `Should throw DomainException when a ratio is zero or negative`() {
+        /** @Dado um valor a alocar */
+        val total = brl(100)
+
+        /** @Então DomainException é lançada para ratio zero */
+        shouldThrow<DomainException> {
+            /** @Quando um ratio é zero */
+            total.allocate(listOf(1, 0))
+        }
+
+        /** @E também para ratio negativo */
+        shouldThrow<DomainException> {
+            /** @Quando um ratio é negativo */
+            total.allocate(listOf(1, -3))
+        }
     }
 
     @Test
-    fun `propriedade - a soma das partes e exatamente o total`() =
+    fun `Should keep the sum of the parts equal to the total`() =
         runBlocking<Unit> {
+            /** @Dado qualquer total (incluindo bordas) e qualquer lista de ratios positivos */
             checkAll(totals, ratiosArb) { total, ratios ->
+                /** @Quando o total é alocado */
+                val parts = brl(total).allocate(ratios)
+
                 /** @Então nenhum centavo é perdido ou criado */
-                brl(total).allocate(ratios).sumOf { it.minorUnits.toBigInteger() } shouldBe big(total)
+                parts.sumOf { it.minorUnits.toBigInteger() } shouldBe big(total)
             }
         }
 
     @Test
-    fun `propriedade - o tamanho da lista e o numero de ratios`() =
+    fun `Should return as many parts as ratios`() =
         runBlocking<Unit> {
+            /** @Dado qualquer total (incluindo bordas) e qualquer lista de ratios positivos */
             checkAll(totals, ratiosArb) { total, ratios ->
-                brl(total).allocate(ratios).size shouldBe ratios.size
+                /** @Quando o total é alocado */
+                val parts = brl(total).allocate(ratios)
+
+                /** @Então o tamanho da lista é o número de ratios */
+                parts.size shouldBe ratios.size
             }
         }
 
     @Test
-    fun `propriedade - cada parte difere da fracao exata em menos de 1 minor unit`() =
+    fun `Should keep each part within 1 minor unit of the exact fraction`() =
         runBlocking<Unit> {
+            /** @Dado qualquer total (incluindo bordas) e qualquer lista de ratios positivos */
             checkAll(totals, ratiosArb) { total, ratios ->
+                /** @Quando o total é alocado */
                 val sum = ratios.sumOf { it.toLong() }.toBigInteger()
-                brl(total).allocate(ratios).zip(ratios).forEach { (part, ratio) ->
-                    /** @Então |parte - total*ratio/soma| < 1, em aritmética inteira: |parte*soma - total*ratio| < soma */
+                val parts = brl(total).allocate(ratios)
+
+                /** @Então |parte - total*ratio/soma| < 1, em aritmética inteira: |parte*soma - total*ratio| < soma */
+                parts.zip(ratios).forEach { (part, ratio) ->
                     val error = (part.minorUnits.toBigInteger() * sum - big(total) * ratio.toBigInteger()).abs()
                     (error < sum) shouldBe true
                 }
@@ -108,24 +162,30 @@ class MoneyAllocateTest {
         }
 
     @Test
-    fun `propriedade - ratios iguais geram partes que diferem em no maximo 1`() =
+    fun `Should produce parts differing by at most 1 when ratios are equal`() =
         runBlocking<Unit> {
+            /** @Dado qualquer total, uma quantidade de partes e um mesmo ratio repetido */
             checkAll(totals, Arb.int(1..50), Arb.int(1..1_000)) { total, count, ratio ->
+                /** @Quando o total é alocado */
                 val parts = brl(total).allocate(List(count) { ratio }).map { it.minorUnits.toBigInteger() }
-                val spread = parts.max() - parts.min()
-                (spread <= BigInteger.ONE) shouldBe true
+
+                /** @Então a diferença entre a maior e a menor parte é de no máximo 1 */
+                (parts.max() - parts.min() <= BigInteger.ONE) shouldBe true
             }
         }
 
     @Test
-    fun `propriedade - entrada invalida sempre lanca DomainException`() =
+    fun `Should always throw DomainException for invalid ratios`() =
         runBlocking<Unit> {
-            val invalid =
-                Arb
-                    .list(Arb.int(Int.MIN_VALUE..Int.MAX_VALUE), 1..8)
-                    .filterInvalid()
+            /** @Dado qualquer total e uma lista de ratios vazia ou com algum ratio não positivo */
+            val invalid = Arb.list(Arb.int(Int.MIN_VALUE..Int.MAX_VALUE), 1..8).filterInvalid()
+
             checkAll(totals, invalid) { total, ratios ->
-                shouldThrow<DomainException> { brl(total).allocate(ratios) }
+                /** @Então DomainException é lançada */
+                shouldThrow<DomainException> {
+                    /** @Quando o total é alocado */
+                    brl(total).allocate(ratios)
+                }
             }
         }
 

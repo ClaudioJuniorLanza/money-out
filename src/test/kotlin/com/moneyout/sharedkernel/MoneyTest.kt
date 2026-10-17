@@ -19,84 +19,148 @@ class MoneyTest {
     private fun brl(minorUnits: Long) = Money(minorUnits, Currency.BRL)
 
     @Test
-    fun `somar devolve o resultado exato em minor units`() {
-        /** @Quando dois valores BRL são somados */
-        val result = brl(10_050) + brl(1_295)
+    fun `Should add exactly in minor units`() {
+        /** @Dado dois valores BRL */
+        val a = brl(10_050)
+        val b = brl(1_295)
+
+        /** @Quando são somados */
+        val result = a + b
 
         /** @Então o resultado é a soma exata em centavos */
         result shouldBe brl(11_345)
     }
 
     @Test
-    fun `subtrair devolve o resultado exato e pode ficar negativo`() {
-        /** @Quando um valor maior é subtraído de um menor */
-        val result = brl(1_000) - brl(2_500)
+    fun `Should subtract exactly and allow a negative result`() {
+        /** @Dado um valor menor e um maior */
+        val smaller = brl(1_000)
+        val larger = brl(2_500)
+
+        /** @Quando o maior é subtraído do menor */
+        val result = smaller - larger
 
         /** @Então o resultado é -15,00 */
         result shouldBe brl(-1_500)
     }
 
     @Test
-    fun `somar alem de Long MAX_VALUE lanca DomainException`() {
-        /** @Quando a soma estoura Long, @Então DomainException em vez de dar a volta */
-        shouldThrow<DomainException> { brl(Long.MAX_VALUE) + brl(1) }
+    fun `Should throw DomainException when adding beyond Long MAX_VALUE`() {
+        /** @Dado o maior valor representável */
+        val max = brl(Long.MAX_VALUE)
+
+        /** @Então DomainException é lançada em vez de dar a volta */
+        shouldThrow<DomainException> {
+            /** @Quando 1 centavo é somado */
+            max + brl(1)
+        }
     }
 
     @Test
-    fun `subtrair abaixo de Long MIN_VALUE lanca DomainException`() {
-        shouldThrow<DomainException> { brl(Long.MIN_VALUE) - brl(1) }
+    fun `Should throw DomainException when subtracting below Long MIN_VALUE`() {
+        /** @Dado o menor valor representável */
+        val min = brl(Long.MIN_VALUE)
+
+        /** @Então DomainException é lançada em vez de dar a volta */
+        shouldThrow<DomainException> {
+            /** @Quando 1 centavo é subtraído */
+            min - brl(1)
+        }
     }
 
     @Test
-    fun `negar Long MIN_VALUE lanca DomainException`() {
-        shouldThrow<DomainException> { -brl(Long.MIN_VALUE) }
+    fun `Should throw DomainException when negating Long MIN_VALUE`() {
+        /** @Dado o menor valor representável, cujo oposto não cabe em Long */
+        val min = brl(Long.MIN_VALUE)
+
+        /** @Então DomainException é lançada */
+        shouldThrow<DomainException> {
+            /** @Quando o valor é negado */
+            -min
+        }
     }
 
     @Test
-    fun `negar inverte o sinal`() {
-        (-brl(500)) shouldBe brl(-500)
-        (-brl(-500)) shouldBe brl(500)
-        (-brl(Long.MAX_VALUE)) shouldBe brl(-Long.MAX_VALUE)
+    fun `Should invert the sign when negating`() {
+        /** @Dado valores positivo, negativo e no limite superior */
+        val positive = brl(500)
+        val negative = brl(-500)
+        val max = brl(Long.MAX_VALUE)
+
+        /** @Quando cada um é negado */
+        val negatedPositive = -positive
+        val negatedNegative = -negative
+        val negatedMax = -max
+
+        /** @Então o sinal é invertido */
+        negatedPositive shouldBe brl(-500)
+
+        /** @E negar um negativo devolve o positivo */
+        negatedNegative shouldBe brl(500)
+
+        /** @E negar o máximo devolve o oposto exato */
+        negatedMax shouldBe brl(-Long.MAX_VALUE)
     }
 
     @Test
-    fun `zero devolve Money de zero na moeda informada`() {
-        Money.zero(Currency.BRL) shouldBe brl(0)
-        Money.zero(Currency.BRL).isZero() shouldBe true
+    fun `Should create a zero Money in the given currency`() {
+        /** @Quando um Money zero em BRL é criado */
+        val zero = Money.zero(Currency.BRL)
+
+        /** @Então ele é igual a zero centavos */
+        zero shouldBe brl(0)
+
+        /** @E isZero é verdadeiro */
+        zero.isZero() shouldBe true
     }
 
     @Test
-    fun `isZero isPositive e isNegative classificam o sinal`() {
-        brl(0).isZero() shouldBe true
-        brl(0).isPositive() shouldBe false
-        brl(0).isNegative() shouldBe false
+    fun `Should classify the sign with isZero, isPositive and isNegative`() {
+        /** @Dado valores zero, positivo e negativo */
+        val zero = brl(0)
+        val positive = brl(1)
+        val negative = brl(-1)
 
-        brl(1).isZero() shouldBe false
-        brl(1).isPositive() shouldBe true
-        brl(1).isNegative() shouldBe false
+        /** @Então zero só é zero */
+        listOf(zero.isZero(), zero.isPositive(), zero.isNegative()) shouldBe listOf(true, false, false)
 
-        brl(-1).isZero() shouldBe false
-        brl(-1).isPositive() shouldBe false
-        brl(-1).isNegative() shouldBe true
+        /** @E o positivo só é positivo */
+        listOf(positive.isZero(), positive.isPositive(), positive.isNegative()) shouldBe listOf(false, true, false)
+
+        /** @E o negativo só é negativo */
+        listOf(negative.isZero(), negative.isPositive(), negative.isNegative()) shouldBe listOf(false, false, true)
     }
 
     @Test
-    fun `compareTo ordena por minor units`() {
-        (brl(100) < brl(101)) shouldBe true
-        (brl(-1) < brl(0)) shouldBe true
+    fun `Should compare by minor units`() {
+        /** @Dado valores BRL desordenados */
+        val values = listOf(brl(300), brl(-5), brl(0))
+
+        /** @Quando são ordenados */
+        val sorted = values.sorted()
+
+        /** @Então a ordem é crescente por minor units */
+        sorted shouldBe listOf(brl(-5), brl(0), brl(300))
+
+        /** @E valores iguais comparam como 0 */
         brl(100).compareTo(brl(100)) shouldBe 0
-        listOf(brl(300), brl(-5), brl(0)).sorted() shouldBe listOf(brl(-5), brl(0), brl(300))
+
+        /** @E um centavo a mais é maior */
+        (brl(100) < brl(101)) shouldBe true
     }
 
     @Test
-    fun `somar e subtrair o mesmo valor devolve o original`() =
+    fun `Should return the original value when adding and subtracting the same amount`() =
         runBlocking<Unit> {
             /** @Dado quaisquer valores cuja soma não estoura Long */
             val safe = Arb.long(-Long.MAX_VALUE / 2, Long.MAX_VALUE / 2)
 
             checkAll(safe, safe) { a, b ->
-                /** @Então (a + b) - b == a */
-                ((brl(a) + brl(b)) - brl(b)) shouldBe brl(a)
+                /** @Quando b é somado e depois subtraído de a */
+                val result = (brl(a) + brl(b)) - brl(b)
+
+                /** @Então o resultado é a */
+                result shouldBe brl(a)
             }
         }
 }

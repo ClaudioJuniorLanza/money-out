@@ -17,8 +17,8 @@ class TimeAndIdConfigurationTest(
     @param:Autowired private val context: ApplicationContext,
 ) {
     @Test
-    fun `contexto expoe exatamente um Clock em UTC`() {
-        /** @Quando o contexto Spring sobe */
+    fun `Should expose exactly one Clock in UTC`() {
+        /** @Dado o contexto Spring em execução, @Quando os beans do tipo Clock são consultados */
         val clocks = context.getBeansOfType<Clock>()
 
         /** @Então existe um único Clock e a zona é UTC */
@@ -27,8 +27,8 @@ class TimeAndIdConfigurationTest(
     }
 
     @Test
-    fun `contexto expoe IdGenerator implementado por UuidV7Generator`() {
-        /** @Quando o contexto Spring sobe */
+    fun `Should expose an IdGenerator implemented by UuidV7Generator`() {
+        /** @Dado o contexto Spring em execução, @Quando os beans do tipo IdGenerator são consultados */
         val generators = context.getBeansOfType<IdGenerator>()
 
         /** @Então o único IdGenerator é o UuidV7Generator */

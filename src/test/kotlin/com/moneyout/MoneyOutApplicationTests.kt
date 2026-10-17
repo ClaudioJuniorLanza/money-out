@@ -6,5 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 class MoneyOutApplicationTests {
     @Test
-    fun `contexto sobe`() = Unit
+    fun `Should start the application context`() {
+        /** @Quando o contexto Spring sobe com a configuração padrão, @Então nenhuma exceção é lançada (o `@SpringBootTest` já faz a verificação) */
+    }
 }
