@@ -197,8 +197,8 @@ T5
 
 **Done when**:
 
-- [ ] Cinco ADRs com status final e índice coerente
-- [ ] Divergências viram ADR substituto ou pedido de mudança antes do fechamento
+- [x] Cinco ADRs com status final e índice coerente
+- [x] Divergências viram ADR substituto ou pedido de mudança antes do fechamento
 
 **Tests**: none
 **Gate**: build

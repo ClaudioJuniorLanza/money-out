@@ -1,6 +1,6 @@
 # 0011 — Estrutura hexagonal/DDD por bounded context e Shared Kernel explícito
 
-- **Status:** Proposta
+- **Status:** Aceita
 - **Data:** 2026-10-10
 - **Fase:** 0
 
@@ -28,7 +28,7 @@ com.moneyout
         └── config/
 ```
 
-- **Portas** são definidas no domínio: `port/input` (casos de uso) e `port/output` (repositórios, relógio, TSP...). As implementações ficam na infraestrutura.
+- **Portas** são definidas no domínio: `port/input` (casos de uso) e `port/output` (`Transfers`, `TransferServiceProvider`...; o `Clock` é o `java.time.Clock` injetado, não uma porta própria). As implementações ficam na infraestrutura.
 - **Nomes** (herdados do harness do autor): o command (`RegisterTransfer`) mora em `port/input` junto da interface do caso de uso; o handler (`RegisterTransferHandler`) mora em `application`; portas de saída têm nome de domínio no plural (`Transfers`, não `TransferRepository`). Detalhes em `.claude/rules/hexagonal.md`.
 - **Dependências:** `infrastructure → application → domain`; o domínio e o `sharedkernel` não conhecem camadas externas nem frameworks (ArchUnit).
 - **Critérios para entrar no `sharedkernel`:** (1) mais de um contexto precisa do conceito; (2) tem invariantes de domínio ou é uma porta mínima; (3) mudanças são coordenadas entre contextos; (4) nunca depende de nenhum contexto. Utilitários genéricos **não** entram.
