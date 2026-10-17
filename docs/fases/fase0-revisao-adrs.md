@@ -1,6 +1,6 @@
 # Fase 0 — Roteiro de revisão dos ADRs (T5)
 
-Material de apoio para a T5 (🧑). Nada nos ADRs foi alterado: os status continuam **Proposta** e a T5 continua aberta no `tasks.md`. A decisão (aceitar, editar, rejeitar) e o texto com as suas palavras são seus.
+Material de apoio para a T5 (🧑). Por pedido do autor (exceção pontual ao `CLAUDE.md`), o agente aplicou a parte mecânica da T5: status **Aceita** nos cinco ADRs, índice atualizado, T5 marcada e duas correções factuais (JUnit no ADR-0001, "relógio" no ADR-0011). Os demais pontos abaixo ficam para a revisão do autor no PR; divergências voltam como feedback.
 
 Como usar: para cada ADR, leia a decisão, responda às perguntas do [guia](fase0-guia.md#1-revise-os-adrs-t5) no próprio texto do ADR e confira os **pontos verificados** abaixo, que cruzei com o código e com `docs/experiments/fase-0.md`. Quando concordar, mude o status para **Aceita** e atualize `docs/adr/README.md`; os cinco ADRs da T5 são 0001, 0002, 0004, 0011 e 0012.
 

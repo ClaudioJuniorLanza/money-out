@@ -1,6 +1,6 @@
 # 0001 — Stack e versões
 
-- **Status:** Proposta (versões verificadas em 2026-10-10; ver `docs/experiments/fase-0.md`)
+- **Status:** Aceita (versões verificadas em 2026-10-10; ver `docs/experiments/fase-0.md`)
 - **Data:** 2026-10-10
 - **Fase:** 0
 
@@ -16,7 +16,7 @@ O objetivo é aprender engenharia de pagamentos, e a stack deve ser empregável 
 - Java 25 (LTS) como toolchain, com Kotlin 2.3.21. Começar na LTS mais recente evita ficar preso a bibliotecas defasadas por incompatibilidade ao longo do projeto e alinha com o `platform-eda`, que também usa 25. Compatibilidade conferida na fonte em 2026-10-13: Kotlin gera bytecode Java 25 desde a 2.3.0, Gradle suporta Java 25 desde a 9.1.0 e Spring Boot 4.1.1 é compatível até o Java 26 (evidências em `docs/experiments/fase-0.md` F0-05).
 - Spring Boot 4.1.1, usando o BOM `spring-boot-dependencies` como fonte da verdade de versões (Kotlin, JUnit, Testcontainers, Flyway, drivers). Só entram no catálogo as versões que o BOM não gerencia (Kotest 6.2.5, ArchUnit 1.5.1, ktlint).
 - Versões exatas, nunca `latest`, nunca milestone/RC; atualizações via ADR ou commit dedicado.
-- Gradle 9.8.1 (wrapper) com Kotlin DSL; PostgreSQL + Flyway; Apache Kafka (ver ADR-0008); JUnit 5, Kotest (property-based), Testcontainers, ArchUnit; Micrometer + OpenTelemetry; Docker Compose; GitHub Actions.
+- Gradle 9.8.1 (wrapper) com Kotlin DSL; PostgreSQL + Flyway; Apache Kafka (ver ADR-0008); JUnit (versão do BOM), Kotest (property-based), Testcontainers, ArchUnit; Micrometer + OpenTelemetry; Docker Compose; GitHub Actions.
 - Sem Axon: event sourcing é implementado à mão para fins didáticos.
 
 ## Consequências

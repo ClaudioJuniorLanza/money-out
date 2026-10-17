@@ -1,6 +1,6 @@
 # 0004 — Idempotência em todas as bordas e tratamento de resultado desconhecido
 
-- **Status:** Proposta
+- **Status:** Aceita
 - **Data:** 2026-10-10
 - **Fase:** 3 e 6
 
