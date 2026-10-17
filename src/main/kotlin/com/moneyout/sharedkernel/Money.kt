@@ -40,8 +40,10 @@ data class Money(
     /**
      * Divide o valor proporcionalmente a [ratios] sem perder nem criar centavo: a soma das partes é exatamente
      * este valor. Cada parte é o piso da fração exata e o resto (sempre menor que o número de partes) é
-     * distribuído de 1 em 1 minor unit a partir das primeiras partes; assim cada parte difere da fração
-     * exata em menos de 1 minor unit.
+     * distribuído de 1 em 1 minor unit a partir das primeiras partes **cuja fração exata não é inteira**; uma
+     * parte já exata nunca recebe centavo extra, senão o erro dela chegaria a 1 minor unit (ratios `[2, 1, 1]`
+     * sobre 2). Como a soma das frações perdidas é `resto * soma dos ratios` e cada uma é menor que a soma,
+     * sempre há partes fracionárias suficientes para o resto.
      *
      * O cálculo é feito sobre o módulo em [BigInteger] e o sinal é aplicado no fim: `total * ratio` pode
      * passar de `Long` (e `|Long.MIN_VALUE|` também), então nunca multiplicamos em `Long`.
@@ -52,13 +54,17 @@ data class Money(
 
         val magnitude = BigInteger.valueOf(minorUnits).abs()
         val ratiosSum = BigInteger.valueOf(ratios.sumOf { it.toLong() })
-        val floors = ratios.map { magnitude.multiply(BigInteger.valueOf(it.toLong())).divide(ratiosSum) }
+        val scaled = ratios.map { magnitude.multiply(BigInteger.valueOf(it.toLong())) }
+        val floors = scaled.map { it.divide(ratiosSum) }
         val remainder = magnitude.subtract(floors.fold(BigInteger.ZERO, BigInteger::add)).toInt()
         val sign = if (minorUnits < 0) -1 else 1
 
+        var toDistribute = remainder
         return floors.mapIndexed { index, floor ->
-            val part = if (index < remainder) floor.add(BigInteger.ONE) else floor
-            Money(part.multiply(BigInteger.valueOf(sign.toLong())).longValueExact(), currency)
+            val isFractional = scaled[index].mod(ratiosSum).signum() != 0
+            val extra = if (toDistribute > 0 && isFractional) BigInteger.ONE else BigInteger.ZERO
+            if (extra.signum() != 0) toDistribute--
+            Money(floor.add(extra).multiply(BigInteger.valueOf(sign.toLong())).longValueExact(), currency)
         }
     }
 

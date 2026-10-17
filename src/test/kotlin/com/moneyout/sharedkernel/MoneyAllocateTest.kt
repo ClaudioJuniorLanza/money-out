@@ -58,6 +58,18 @@ class MoneyAllocateTest {
     }
 
     @Test
+    fun `Should not give an extra minor unit to a part whose exact fraction is already whole`() {
+        /** @Dado 2 minor units e ratios [2, 1, 1], em que a primeira parte já é exata (1) */
+        val total = brl(2)
+
+        /** @Quando o valor é alocado */
+        val parts = total.allocate(listOf(2, 1, 1))
+
+        /** @Então o centavo que sobra vai para a primeira parte fracionária, não para a exata */
+        parts shouldBe listOf(brl(1), brl(1), brl(0))
+    }
+
+    @Test
     fun `Should allocate without overflow when total times ratio exceeds Long`() {
         /** @Dado Long.MAX_VALUE e ratios que fazem total * ratio passar de Long */
         val total = brl(Long.MAX_VALUE)
