@@ -100,12 +100,12 @@ Toda fase seguinte depende de `Money` correto (sem perder centavo, sem somar moe
 
 | Requirement ID | Story | Phase | Status |
 |---|---|---|---|
-| F0-01 | P1: Dinheiro seguro (ACs 1–3) | Tasks | Pending |
-| F0-02 | P1: Dinheiro seguro (ACs 4–6 + edge cases) | Tasks | Pending |
-| F0-03 | P1: Tempo e ids (ACs 1–2) | Tasks | Pending |
-| F0-04 | P1: Tempo e ids (AC 3) | Tasks | Pending |
+| F0-01 | P1: Dinheiro seguro (ACs 1–3) | Tasks | Done |
+| F0-02 | P1: Dinheiro seguro (ACs 4–6 + edge cases) | Tasks | Done |
+| F0-03 | P1: Tempo e ids (ACs 1–2) | Tasks | Done |
+| F0-04 | P1: Tempo e ids (AC 3) | Tasks | Done |
 | F0-05 | P2: Fechamento (AC 1) | Tasks | Pending |
-| F0-06 | P2: Fechamento (AC 2) | Tasks | Pending |
+| F0-06 | P2: Fechamento (AC 2) | Tasks | Done |
 | F0-07 | P2: Fechamento (AC 3) | Tasks | Pending |
 
 **Coverage:** 7 total, 7 mapped to tasks, 0 unmapped.

@@ -7,7 +7,7 @@
 - `sealed interface` para hierarquias de eventos, commands e resultados; `when` **exaustivo e sem `else`**, para que um caso novo quebre a compilação.
 - Null safety: `?.`, `?.let {}`, `?:`. Nada de `!!` (em teste, `shouldNotBeNull()`).
 - Sem números mágicos: constantes nomeadas em `private companion object` ou `const val`.
-- Código e identificadores em inglês; KDoc e comentários em pt-BR; nomes de função de teste em pt-BR com crases.
+- Código e identificadores em inglês; KDoc e comentários em pt-BR; nomes de função de teste em inglês com crases e Gherkin em pt-BR (`tests/gherkin.md`).
 - Comentários explicam o **porquê** (a regra de pagamento, o bug que evitam), não o quê.
 - `allWarningsAsErrors = true` e `-Xjsr305=strict` já estão no `build.gradle.kts`: não desligue.
 

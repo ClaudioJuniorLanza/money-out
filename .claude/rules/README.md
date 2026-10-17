@@ -20,7 +20,7 @@ Quando uma regra pedir uma decisão que não está em nenhum desses lugares, **p
 | Command, caso de uso, handler | [`command-handler.md`](command-handler.md) + [`domain-model.md`](domain-model.md) |
 | Endpoint HTTP, job agendado, consumer, cliente de API externa, adapter de banco | [`hexagonal.md`](hexagonal.md) |
 | Event store, projeção, outbox, upcaster | [`event-sourcing.md`](event-sourcing.md) |
-| Testes de qualquer camada | [`tests.md`](tests.md) |
+| Testes de qualquer camada | [`tests.md`](tests.md) + [`tests/gherkin.md`](tests/gherkin.md) |
 
 ## Diferenças em relação ao harness original (e por quê)
 
@@ -33,6 +33,6 @@ Quando uma regra pedir uma decisão que não está em nenhum desses lugares, **p
 | Persistência | estado + outbox (event-persistence ou aggregate-persistence) | **Event Sourcing**: o event store é a verdade; estado é derivado | ADR-0003 |
 | Defaults de evento | `UUID.randomUUID()`, `Instant.now()` | proibidos no domínio; tempo vem do `Clock`, ids do `IdGenerator` | ADR-0011 + ArchUnit |
 | Invariantes de VO | `require` → `IllegalArgumentException` | `DomainException` (ou subclasse), mapeável para HTTP 422 | `sharedkernel/DomainException.kt` |
-| Nomes de teste | inglês | pt-BR com crases (convenção da Fase 0) | `docs/experiments/fase-0.md` F0-02 |
+| Nomes de teste | inglês, Gherkin em pt-BR | **igual ao harness**: nome em inglês com crases, Gherkin pt-BR obrigatório em todo teste | `tests/gherkin.md` |
 
 O que foi mantido: o domínio rico, a nomenclatura de portas (`Transfers`, não `TransferRepository`), um handler por command, portas mockadas à mão, fixtures centralizadas, comentários Gherkin em pt-BR, `when` exaustivo sem `else`, rotas versionadas no path, a facade de integrações externas e a regra de que nada externo é publicado fora da transação de negócio.

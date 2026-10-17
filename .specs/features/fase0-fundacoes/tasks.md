@@ -76,9 +76,9 @@ T3 -> T4 -> T6
 
 **Done when**:
 
-- [ ] Teste de contexto em `src/test/kotlin/com/moneyout/infrastructure/config/TimeAndIdConfigurationTest.kt` afirma: um único bean `Clock`, `zone == ZoneOffset.UTC`; bean `IdGenerator` é `UuidV7Generator`
-- [ ] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
-- [ ] Test count: 13 → ≥ 15 (nenhum teste removido)
+- [x] Teste de contexto em `src/test/kotlin/com/moneyout/infrastructure/config/TimeAndIdConfigurationTest.kt` afirma: um único bean `Clock`, `zone == ZoneOffset.UTC`; bean `IdGenerator` é `UuidV7Generator`
+- [x] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
+- [x] Test count: 13 → ≥ 15 (nenhum teste removido)
 
 **Tests**: integration
 **Gate**: build
@@ -102,10 +102,10 @@ T3 -> T4 -> T6
 
 **Done when**:
 
-- [ ] Regra cobre `..domain..` e `..sharedkernel..`
-- [ ] Prova numa cópia descartável (nunca no working tree real): classe no `sharedkernel` chamando `UUID.randomUUID()` derruba só a regra nova; resultado registrado como F0-06 em `docs/experiments/fase-0.md`
-- [ ] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
-- [ ] Test count: +1 regra ArchUnit, nenhuma removida
+- [x] Regra cobre `..domain..` e `..sharedkernel..`
+- [x] Prova numa cópia descartável (nunca no working tree real): classe no `sharedkernel` chamando `UUID.randomUUID()` derruba só a regra nova; resultado registrado como F0-06 em `docs/experiments/fase-0.md`
+- [x] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
+- [x] Test count: +1 regra ArchUnit, nenhuma removida
 
 **Tests**: unit
 **Gate**: build
@@ -129,9 +129,9 @@ T3 -> T4 -> T6
 
 **Done when**:
 
-- [ ] `MoneyTest.kt` cobre ACs 1–3 de "Dinheiro seguro" e o edge case de `-Money(Long.MIN_VALUE)`
-- [ ] Teste de "moedas diferentes": se não for possível com uma moeda só, o motivo fica registrado no KDoc do teste e no commit (premissa da spec)
-- [ ] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
+- [x] `MoneyTest.kt` cobre ACs 1–3 de "Dinheiro seguro" e o edge case de `-Money(Long.MIN_VALUE)`
+- [x] Teste de "moedas diferentes": se não for possível com uma moeda só, o motivo fica registrado no KDoc do teste e no commit (premissa da spec)
+- [x] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
 
 **Tests**: unit
 **Gate**: build
@@ -150,9 +150,9 @@ T3 -> T4 -> T6
 
 **Done when**:
 
-- [ ] `MoneyAllocateTest.kt` com o exemplo concreto (R$ 100,00 em 3 ⇒ 33,34 + 33,33 + 33,33) e uma `checkAll` por propriedade: soma == total; tamanho == `ratios.size`; cada parte a menos de 1 minor unit da fração exata; ratios iguais ⇒ partes diferem no máximo em 1; entrada inválida ⇒ `DomainException`
-- [ ] Os três edge cases da spec cobertos (total negativo, `total * ratio` grande, `Long.MIN_VALUE`)
-- [ ] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
+- [x] `MoneyAllocateTest.kt` com o exemplo concreto (R$ 100,00 em 3 ⇒ 33,34 + 33,33 + 33,33) e uma `checkAll` por propriedade: soma == total; tamanho == `ratios.size`; cada parte a menos de 1 minor unit da fração exata; ratios iguais ⇒ partes diferem no máximo em 1; entrada inválida ⇒ `DomainException`
+- [x] Os três edge cases da spec cobertos (total negativo, `total * ratio` grande, `Long.MIN_VALUE`)
+- [x] Gate check passes: `./gradlew ktlintFormat && ./gradlew build`
 
 **Tests**: unit
 **Gate**: build
@@ -171,8 +171,8 @@ T3 -> T4 -> T6
 
 **Done when**:
 
-- [ ] Seção "Exercícios de quebra" com, para cada exercício, a saída relevante do build e a explicação em linguagem de entrevista
-- [ ] Working tree real intacto (`git status` igual ao de antes do exercício)
+- [x] Seção "Exercícios de quebra" com, para cada exercício, a saída relevante do build e a explicação em linguagem de entrevista
+- [x] Working tree real intacto (`git status` igual ao de antes do exercício)
 
 **Tests**: none
 **Gate**: build

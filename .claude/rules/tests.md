@@ -21,13 +21,13 @@ JUnit 5 (Jupiter) + Kotest assertions (`shouldBe`, `shouldThrow`) + **Kotest pro
 
 ## Formato
 
-- Nome da função em **pt-BR com crases**, descrevendo o comportamento: `` `aprovar transfer ja concluida lanca InvalidTransferTransition` ``.
-- Comentários Gherkin em pt-BR (`/** @Dado */`, `/** @Quando */`, `/** @Então */`, `/** @E */`) em testes de agregado, handler e integração. Em teste de VO de 2–3 linhas são opcionais.
+- Nome da função em **inglês** com crases, descrevendo o comportamento: `` `Should throw InvalidTransferTransition when approving a completed transfer` ``.
+- Comentários **Gherkin em pt-BR** (`/** @Dado */`, `/** @Quando */`, `/** @Então */`, `/** @E */`) em **todo** teste, sem exceção por tamanho (só as regras do ArchUnit ficam fora). Regras completas e anti-padrões: [`tests/gherkin.md`](tests/gherkin.md).
 - Cada bloco Gherkin vem **imediatamente antes** do código que descreve; asserções só depois de `@Então`/`@E`.
 
 ```kotlin
 @Test
-fun `aprovar transfer em analise de risco emite TransferApproved`() {
+fun `Should emit TransferApproved when approving a transfer under risk analysis`() {
     /** @Dado uma transfer em análise de risco */
     val transfer = Transfer.rehydrate(listOf(TRANSFER_REGISTERED, RISK_ANALYSIS_STARTED))
 
